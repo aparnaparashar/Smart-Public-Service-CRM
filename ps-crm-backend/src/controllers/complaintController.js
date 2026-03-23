@@ -70,7 +70,23 @@ DEPARTMENTS AND THEIR EXACT ISSUES:
 15. "Advertisement & Signage"             → illegal hoarding, unauthorized banner, illegal signage, advertisement violation, hoarding blocking view
 16. "Other"                                → complaints that do not match any above department
 
-CATEGORY must be one of: Sanitation, Roads, Water, Electricity, Health, Education, Infrastructure, Environment, Finance, Administration, Food Safety, Safety, Animal Welfare, Encroachment, Signage, Other
+CATEGORY MAPPING (Map departments to categories):
+- "Sanitation & Solid Waste Management" → Category: "Sanitation"
+- "Roads & Infrastructure" → Category: "Roads"
+- "Water Supply & Drainage" → Category: "Water"
+- "Street Lighting" → Category: "Electricity"
+- "Health Services" → Category: "Health"
+- "Education (MCD Schools)" → Category: "Education"
+- "Building & Planning" → Category: "Infrastructure"
+- "Parks & Horticulture" → Category: "Environment"
+- "Property Tax" → Category: "Finance"
+- "Birth & Death Registration" → Category: "Administration"
+- "Food Safety & Slaughterhouse" → Category: "Food Safety"
+- "Fire Services" → Category: "Safety"
+- "Veterinary Services" → Category: "Animal Welfare"
+- "Encroachment Removal" → Category: "Encroachment"
+- "Advertisement & Signage" → Category: "Signage"
+- "Other" → Category: "Other"
 
 URGENCY rules:
 - High   → immediate danger to life, health emergency, accident risk, crime, fire, no water/electricity for many days
@@ -78,15 +94,16 @@ URGENCY rules:
 - Low    → minor issue, cosmetic problem, information request, suggestion
 
 IMPORTANT RULES:
-- "footpath blocked by vendor/hawker" = Encroachment Removal (NOT Roads)
-- "streetlight not working" = Street Lighting (NOT Electricity)
-- "stray dog" = Veterinary Services (NOT Safety)
-- "illegal construction" = Building & Planning (NOT Encroachment)
-- "park dirty" = Parks & Horticulture (NOT Sanitation)
+- "footpath blocked by vendor/hawker" = Encroachment Removal / Encroachment (NOT Roads)
+- "streetlight not working" = Street Lighting / Electricity (NOT Electricity as a technical issue)
+- "stray dog" = Veterinary Services / Animal Welfare (NOT Safety)
+- "illegal construction" = Building & Planning / Infrastructure (NOT Encroachment)
+- "park dirty" = Parks & Horticulture / Environment (NOT Sanitation)
 - Always match the department EXACTLY as written above
+- Always use the category name from the CATEGORY MAPPING section
 
-Return ONLY a raw JSON object. No markdown. No explanation. No extra text:
-{"category":"Encroachment","urgency":"Medium","department":"Encroachment Removal","reason":"Vendor illegally occupying public footpath"}`;
+Return ONLY a raw JSON object. No markdown. No explanation. No extra text. Use this exact format:
+{"category":"Sanitation","urgency":"High","department":"Sanitation & Solid Waste Management","reason":"Overflowing dustbin affecting public health"}`;
 
 // ─── Dedup + semantic helpers (added) ────────────────────────────────────────
 
@@ -420,24 +437,36 @@ const getAssignedComplaints = async (req, res) => {
 
 const parseAIResponse = (raw) => {
   const cleaned = raw.replace(/```json|```/g, '').trim();
-  let parsed;
+  let parsed = {};
+  
   try {
     parsed = JSON.parse(cleaned);
-  } catch {
-    const catMatch  = cleaned.match(/"category"\s*:\s*"([^"]+)"/);
-    const urgMatch  = cleaned.match(/"urgency"\s*:\s*"([^"]+)"/);
-    const deptMatch = cleaned.match(/"department"\s*:\s*"([^"]+)"/);
-    const resMatch  = cleaned.match(/"reason"\s*:\s*"([^"]+)"/);
+  } catch (e) {
+    // ✅ IMPROVED: Handle malformed JSON with more robust regex patterns
+    const catMatch  = cleaned.match(/"?category"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'category'\s*:\s*'([^']+)'/i);
+    const urgMatch  = cleaned.match(/"?urgency"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'urgency'\s*:\s*'([^']+)'/i);
+    const deptMatch = cleaned.match(/"?department"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'department'\s*:\s*'([^']+)'/i);
+    const resMatch  = cleaned.match(/"?reason"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'reason'\s*:\s*'([^']+)'/i);
+    
     parsed = {
-      category:   catMatch?.[1]  || 'Other',
-      urgency:    urgMatch?.[1]  || 'Low',
-      department: deptMatch?.[1] || 'Other',
-      reason:     resMatch?.[1]  || 'AI classified',
+      category:   catMatch?.[1]?.trim() || 'Other',
+      urgency:    urgMatch?.[1]?.trim() || 'Low',
+      department: deptMatch?.[1]?.trim() || 'Other',
+      reason:     resMatch?.[1]?.trim() || 'AI classified',
     };
+    
+    console.log('[parseAIResponse] Recovered from malformed JSON:', parsed);
   }
+  
   const finalCategory   = VALID_CATEGORIES.includes(parsed.category)   ? parsed.category   : 'Other';
   const finalUrgency    = VALID_URGENCIES.includes(parsed.urgency)      ? parsed.urgency    : 'Low';
   const finalDepartment = VALID_DEPARTMENTS.includes(parsed.department) ? parsed.department : 'Other';
+  
+  // ✅ DEBUG: Log if fallback to 'Other' happened
+  if (finalCategory === 'Other' && parsed.category !== 'Other') {
+    console.log(`[parseAIResponse] Invalid category "${parsed.category}" — using "Other"`);
+  }
+  
   return { category: finalCategory, urgency: finalUrgency, department: finalDepartment, reason: parsed.reason || 'AI classified' };
 };
 
@@ -463,6 +492,7 @@ const classifyComplaint = async (req, res) => {
     });
 
     const raw = completion.choices[0]?.message?.content || '';
+    console.log(`[Groq] Raw response: ${raw}`);
     const result = parseAIResponse(raw);
 
     console.log(`[Groq] "${title}" → ${result.category} / ${result.urgency} / ${result.department}`);
@@ -477,6 +507,7 @@ const classifyComplaint = async (req, res) => {
       const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
       const geminiResult = await model.generateContent(prompt);
       const raw = geminiResult.response.text();
+      console.log(`[Gemini] Raw response: ${raw}`);
       const result = parseAIResponse(raw);
 
       console.log(`[Gemini] "${title}" → ${result.category} / ${result.urgency} / ${result.department}`);
