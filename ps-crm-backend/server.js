@@ -31,6 +31,9 @@ app.use('/api/complaints', complaintRoutes);
 app.use('/api/dashboard',  dashboardRoutes);
 app.use('/api/feedback',   feedbackRoutes);
 
+const chatbotRoutes = require('./src/routes/chatbotRoutes');
+app.use('/api/chatbot', chatbotRoutes);
+
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 const { startWhatsAppBot } = require('./src/config/whatsappBot');

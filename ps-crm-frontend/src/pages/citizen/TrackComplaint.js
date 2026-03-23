@@ -7,7 +7,10 @@ export default function TrackComplaint() {
   const navigate = useNavigate();
   const { lang } = useLang();
   const [complaintId, setComplaintId] = useState('');
+<<<<<<< HEAD
+=======
   const [email, setEmail] = useState('');
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
   const [complaint, setComplaint] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,11 +18,20 @@ export default function TrackComplaint() {
   useEffect(() => {
   const params = new URLSearchParams(window.location.search);
   let id = params.get('id');
+<<<<<<< HEAD
+=======
   const filerEmail = params.get('email') || '';
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
   if (id) {
     id = id.toUpperCase();
     if (!id.startsWith('CMP-')) id = `CMP-${id}`;
     setComplaintId(id);
+<<<<<<< HEAD
+    setLoading(true);
+    API.get(`/complaints/track/${id}`)
+      .then(res => { setComplaint(res.data.data); setLoading(false); })
+      .catch(() => { setError('Complaint not found.'); setLoading(false); });
+=======
     setEmail(filerEmail);
     if (filerEmail) {
       setLoading(true);
@@ -27,11 +39,15 @@ export default function TrackComplaint() {
         .then(res => { setComplaint(res.data.data); setLoading(false); })
         .catch(() => { setError('Complaint not found.'); setLoading(false); });
     }
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
   }
 }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
  const handleTrack = async () => {
   let input = complaintId.trim().toUpperCase();
+<<<<<<< HEAD
+  if (!input) return;
+=======
   const normalizedEmail = email.trim().toLowerCase();
   if (!input || !normalizedEmail) {
     setError(lang === 'hi'
@@ -39,12 +55,21 @@ export default function TrackComplaint() {
       : 'Please enter both complaint ID and filer email.');
     return;
   }
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
   // Auto-prefix CMP- if user typed just the number part
   if (!input.startsWith('CMP-')) input = `CMP-${input}`;
   setLoading(true);
   setError('');
   setComplaint(null);
   try {
+<<<<<<< HEAD
+    const res = await API.get(`/complaints/track/${input}`);
+    setComplaint(res.data.data);
+  } catch (err) {
+    setError(lang === 'hi'
+      ? 'शिकायत नहीं मिली। कृपया ID जांचें और दोबारा कोशिश करें।'
+      : 'Complaint not found. Please check the ID and try again.');
+=======
     const res = await API.get(`/complaints/track/${input}`, {
       params: { email: normalizedEmail },
     });
@@ -53,6 +78,7 @@ export default function TrackComplaint() {
     setError(lang === 'hi'
       ? 'शिकायत नहीं मिली। कृपया शिकायत आईडी और फाइलर ईमेल जांचें।'
       : 'Complaint not found. Please check the complaint ID and filer email.');
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
   }
   setLoading(false);
 };
@@ -197,6 +223,8 @@ export default function TrackComplaint() {
                 onKeyDown={e => e.key === 'Enter' && handleTrack()}
               />
             </div>
+<<<<<<< HEAD
+=======
             <div style={{ flex: 1 }}>
               <label style={styles.label}>{lang === 'hi' ? 'फाइलर ईमेल' : 'Filer Email'}</label>
               <input
@@ -208,14 +236,20 @@ export default function TrackComplaint() {
                 onKeyDown={e => e.key === 'Enter' && handleTrack()}
               />
             </div>
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
             <button style={styles.btnTrack} onClick={handleTrack} disabled={loading}>
               {loading ? tx('⏳ Searching...', lang) : tx('🔍 Track', lang)}
             </button>
           </div>
           <div style={{ fontSize: 12, color: '#9BADC0', marginTop: 10 }}>
             💡 {lang === 'hi'
+<<<<<<< HEAD
+              ? 'शिकायत दर्ज होने पर आपको ईमेल में ID मिली होगी (जैसे CMP-71705289)'
+              : 'Your complaint ID was sent to your email when you submitted (e.g. CMP-71705289)'}
+=======
               ? 'डुप्लीकेट शिकायतों को सही उपयोगकर्ता से जोड़ने के लिए शिकायत आईडी के साथ वही ईमेल दर्ज करें जिससे शिकायत की गई थी'
               : 'To identify the correct filer for grouped duplicate complaints, enter the same email used while filing along with the complaint ID'}
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
           </div>
           {error && <div style={styles.error}>{error}</div>}
         </div>
@@ -294,6 +328,9 @@ export default function TrackComplaint() {
                   {/* Description */}
                   <div style={styles.descBox}>
                     <div style={styles.descLabel}>{tx('Description', lang)}</div>
+<<<<<<< HEAD
+                    <div style={styles.descText}>{complaint.description}</div>
+=======
                     <div style={styles.descText}>
                       {complaint.description?.trim() || (() => {
                         const title = complaint.title?.trim() || tx('public service issue', lang);
@@ -308,6 +345,7 @@ export default function TrackComplaint() {
                           : `This complaint appears to concern ${title.toLowerCase()} under the ${category} category at ${locationText} and has been marked as ${urgency} priority. The field officer should inspect the site, verify the cause of the issue, and take the necessary corrective action on the ground.`;
                       })()}
                     </div>
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
                   </div>
 
                   {/* Resolution Note */}
@@ -536,4 +574,8 @@ const styles = {
   lightboxImg: { maxWidth: '90vw', maxHeight: '80vh', display: 'block', objectFit: 'contain' },
   lightboxCaption: { padding: '10px 16px', fontSize: 13, color: '#6B7FA3', textAlign: 'center', background: '#F8FAFC' },
   emptyState: { textAlign: 'center', padding: '80px 20px', color: '#6B7FA3' },
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7

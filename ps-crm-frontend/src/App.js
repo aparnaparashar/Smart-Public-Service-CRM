@@ -15,6 +15,7 @@ import FeedbackPage from './pages/citizen/FeedbackPage';
 import OfficerDashboard from './pages/officer/OfficerDashboard';
 import PublicDashboard from './pages/public/PublicDashboard';
 import Notifications from './pages/Notifications';
+import Chatbot from './components/ui/Chatbot';
 
 const ProtectedRoute = ({ children, roles }) => {
   const { user } = useAuth();
@@ -35,9 +36,6 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/public" element={<PublicDashboard />} />
             <Route path="/citizen/track" element={<TrackComplaint />} />
-
-            {/* Citizen */}
-            <Route path="/citizen/dashboard" element={<ProtectedRoute roles={['citizen']}><CitizenDashboard /></ProtectedRoute>} />
             <Route path="/citizen/submit" element={<ProtectedRoute roles={['citizen']}><SubmitComplaint /></ProtectedRoute>} />
             <Route path="/citizen/feedback/:id" element={<ProtectedRoute roles={['citizen']}><FeedbackPage /></ProtectedRoute>} />
 
@@ -55,6 +53,7 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
+          <Chatbot />
         </BrowserRouter>
       </AuthProvider>
     </LanguageProvider>

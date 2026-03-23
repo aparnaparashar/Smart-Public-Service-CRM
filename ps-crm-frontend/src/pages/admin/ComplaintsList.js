@@ -149,7 +149,6 @@ export default function ComplaintsList() {
 
     return `This complaint appears to concern ${title.toLowerCase()} under the ${category} category at ${locationText} and has been marked as ${urgency}. The field officer should inspect the site, verify the cause of the issue, and take the necessary corrective action on the ground.`;
   };
-
   const statusSteps = [
     { key: 'Pending',     label: 'Submitted',   icon: '📝' },
     { key: 'In Progress', label: 'In Progress', icon: '🔧' },
@@ -388,7 +387,6 @@ export default function ComplaintsList() {
                     ))}
                   </div>
 
-                  {/* ── Description ── */}
                   <div style={{ marginTop: 12, padding: '12px 16px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E8EEF8' }}>
                     <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7FA3', marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.5 }}>📝 Description</div>
                     <div style={{ fontSize: 13, color: '#3A4E70', lineHeight: 1.6 }}>{getComplaintSummary(d)}</div>
@@ -596,4 +594,8 @@ const modal = {
   photoGrid:    { display: 'flex', flexWrap: 'wrap', gap: 8 },
   photoThumb:   { width: 90, height: 90, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '2px solid #E8EEF8', transition: 'transform 0.15s' },
   emptyPhotos:  { background: '#F8FAFC', borderRadius: 8, padding: '20px', textAlign: 'center', color: '#9EB3CC', fontSize: 13 },
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 50762842ae020949554923b9c70291784a52c3e7
