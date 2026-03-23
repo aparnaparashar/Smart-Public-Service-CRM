@@ -246,61 +246,6 @@ export default function SubmitComplaint() {
   // ── Main Form ────────────────────────────────────────────────────────────
   return (
     <div style={styles.page}>
-<<<<<<< HEAD
-      <style>{`
-        @keyframes micpulse {
-          0%   { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
-          70%  { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
-          100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
-        }
-      `}</style>
-      <Header navigate={navigate} lang={lang} />
-      <div style={styles.container}>
-        <div style={styles.pageHead}>
-          <h1 style={styles.pageTitle}>{tx('📝 File a Complaint', lang)}</h1>
-          <p style={styles.pageSub}>{tx('Describe your issue — AI will automatically detect the category and urgency', lang)}</p>
-        </div>
-
-        <div style={styles.grid}>
-          <div>
-            <div style={styles.card}>
-              <div style={styles.cardTitle}>{tx('📋 Complaint Details', lang)}</div>
-              {error && <div style={styles.error}>{error}</div>}
-
-              {/* Title — with voice (Mayur) */}
-              <div style={styles.formGroup}>
-                <label style={styles.label}>{tx('Complaint Title *', lang)}</label>
-                <VoiceInput
-                  lang={lang}
-                  value={form.title}
-                  onChange={(val) => setForm(f => ({ ...f, title: val }))}
-                  placeholder={tx('Brief title of your complaint', lang)}
-                />
-              </div>
-
-              {/* Description — with voice (Mayur) */}
-              <div style={styles.formGroup}>
-                <label style={styles.label}>{tx('Complaint Description *', lang)}</label>
-                <VoiceInput
-                  lang={lang}
-                  multiline
-                  value={form.description}
-                  onChange={(val) => setForm(f => ({ ...f, description: val }))}
-                  placeholder={tx('Describe your issue in detail — AI will auto-detect category and urgency...', lang)}
-                />
-              </div>
-              </div>
-
-              {/* AI Result Box */}
-              {aiLoading && (
-                <div style={{ ...styles.aiBox, opacity: 0.7 }}>
-                  <div style={styles.aiTitle}>{tx('🧠 AI Analyzing...', lang)}</div>
-                  <div style={{ fontSize: 13, color: '#6B7FA3' }}>{tx('Detecting category and urgency...', lang)}</div>
-                </div>
-              )}
-<<<<<<< HEAD
-
-=======
 >>>>>>> 50762842ae020949554923b9c70291784a52c3e7
               {!aiLoading && aiResult && (
                 <div style={styles.aiBox}>
@@ -392,29 +337,15 @@ export default function SubmitComplaint() {
                 {tx('📸 Photo Evidence', lang)}{' '}
                 <span style={{ fontSize: 12, color: '#6B7FA3', fontWeight: 400 }}>{tx('(Optional — max 3 images)', lang)}</span>
               </div>
-              <div style={{ ...styles.dropZone, ...(dragOver ? styles.dropZoneActive : {}) }}
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+              <div style={{ ...styles.dropZone, ...(dragOver ? styles.dropZoneActive : {}) }}                onDragOver={e => { e.preventDefault(); setDragOver(true); }}
                 onDragLeave={() => setDragOver(false)}
                 onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
                 onClick={() => images.length < 3 && fileInputRef.current.click()}>
-<<<<<<< HEAD
-                <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
-                <div style={{ fontSize: 40, marginBottom: 10 }}>📷</div>
-                <div style={styles.dropText}>
-                  {dragOver ? tx('Drop images here!', lang) : tx('Click or drag & drop images here', lang)}
-                </div>
-                <div style={styles.dropSub}>{tx('JPG, PNG, WEBP · Max 3 images · 5MB each', lang)}</div>
-              </div>
-
-=======
                 <input ref={fileInputRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
                 <div style={{ fontSize: 40, marginBottom: 10 }}>📷</div>
                 <div style={styles.dropText}>{dragOver ? tx('Drop images here!', lang) : tx('Click or drag & drop images here', lang)}</div>
                 <div style={styles.dropSub}>{tx('JPG, PNG, WEBP · Max 3 images · 5MB each', lang)}</div>
-              </div>
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-              {images.length > 0 && (
+              </div>              {images.length > 0 && (
                 <div style={styles.previewGrid}>
                   {images.map((img, i) => (
                     <div key={i} style={styles.previewCard}>
@@ -449,30 +380,6 @@ export default function SubmitComplaint() {
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>{tx('Address', lang)}</label>
-<<<<<<< HEAD
-                  <VoiceInput
-                    lang={lang}
-                    value={form.location.address}
-                    onChange={(val) => setForm(f => ({ ...f, location: { ...f.location, address: val } }))}
-                    placeholder={tx('Street, area or landmark', lang)}
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>
-                    {tx('Ward', lang)} *{' '}
-                    <span style={{ fontSize: 11, color: '#E8620A', fontWeight: 400 }}>
-                      ({lang === 'hi' ? 'अनिवार्य' : 'required'})
-                    </span>
-                  </label>
-                  <select style={{ ...styles.input, borderColor: form.location.ward ? '#16A34A' : '#E8620A', color: form.location.ward ? '#0F2557' : '#9EB3CC' }}
-                    value={form.location.ward} onChange={e => setForm(f => ({ ...f, location: { ...f.location, ward: e.target.value } }))}>
-                    <option value="">{lang === 'hi' ? '-- वार्ड चुनें --' : '-- Select Ward --'}</option>
-                    {WARDS.map(w => <option key={w} value={`Ward ${w}`}>Ward {w}</option>)}
-                  </select>
-                  {!form.location.ward && (
-                    <div style={{ fontSize: 11, color: '#E8620A', marginTop: 4 }}>
-                      {lang === 'hi' ? '📍 वार्ड चुनें — सार्वजनिक डैशबोर्ड के लिए जरूरी' : '📍 Required for Ward-wise data on Public Dashboard'}
-=======
                   <VoiceInput
                     lang={lang}
                     value={form.location.address}
@@ -491,9 +398,7 @@ export default function SubmitComplaint() {
                   </select>
                   {!form.location.ward && (
                     <div style={{ fontSize: 11, color: '#E8620A', marginTop: 4 }}>
-                      {lang === 'hi' ? '📍 वार्ड चुनें — सार्वजनिक डैशबोर्ड के लिए जरूरी' : '📍 Required for Ward-wise data on Public Dashboard'}
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-                    </div>
+                      {lang === 'hi' ? '📍 वार्ड चुनें — सार्वजनिक डैशबोर्ड के लिए जरूरी' : '📍 Required for Ward-wise data on Public Dashboard'}                    </div>
                   )}
                 </div>
               </div>
@@ -516,24 +421,6 @@ export default function SubmitComplaint() {
               </div>
               <div style={styles.formGroup}>
                 <label style={styles.label}>{tx('Phone Number', lang)}</label>
-<<<<<<< HEAD
-                <input style={styles.input} placeholder={tx('10-digit mobile number', lang)}
-                  value={form.citizen.phone}
-                  onChange={e => setForm(f => ({ ...f, citizen: { ...f.citizen, phone: e.target.value } }))} />
-              </div>
-            </div>
-
-            <button
-              style={{ ...styles.btnPrimary, width: '100%', padding: 14, fontSize: 16, marginTop: 16 }}
-              onClick={handleSubmit} disabled={loading || aiLoading}>
-              {loading
-                ? tx('⏳ Submitting...', lang)
-                : images.length > 0
-                  ? (lang === 'hi'
-                      ? `✅ ${images.length} फ़ोटो के साथ शिकायत जमा करें`
-                      : `✅ Submit Complaint with ${images.length} Photo${images.length > 1 ? 's' : ''}`)
-                  : tx('✅ Submit Complaint', lang)}
-=======
                 <input style={styles.input} placeholder={tx('10-digit mobile number', lang)} type="tel" maxLength={10}
                   value={form.citizen.phone}
                   onChange={e => { const val = e.target.value.replace(/\D/g, '').slice(0, 10); setForm(f => ({ ...f, citizen: { ...f.citizen, phone: val } })); }} />
@@ -544,9 +431,7 @@ export default function SubmitComplaint() {
               onClick={handleSubmit} disabled={loading || aiLoading}>
               {loading ? tx('⏳ Submitting...', lang) : images.length > 0
                 ? (lang === 'hi' ? `✅ ${images.length} फ़ोटो के साथ शिकायत जमा करें` : `✅ Submit Complaint with ${images.length} Photo${images.length > 1 ? 's' : ''}`)
-                : tx('✅ Submit Complaint', lang)}
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-            </button>
+                : tx('✅ Submit Complaint', lang)}            </button>
           </div>
 
           {/* Right Panel */}
@@ -571,12 +456,7 @@ export default function SubmitComplaint() {
             <div style={{ ...styles.card, marginTop: 16 }}>
               <div style={styles.cardTitle}>{tx('ℹ️ How It Works', lang)}</div>
               {[
-<<<<<<< HEAD
-                { step: '01', title: 'Describe Your Issue',  desc: 'Type your complaint title and description' },
-=======
-                { step: '01', title: 'Describe Your Issue',  desc: 'Type or speak your complaint' },
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-                { step: '02', title: 'AI Auto-Classifies',   desc: 'Category & urgency detected instantly' },
+                { step: '01', title: 'Describe Your Issue',  desc: 'Type or speak your complaint' },                { step: '02', title: 'AI Auto-Classifies',   desc: 'Category & urgency detected instantly' },
                 { step: '03', title: 'Add Photo Evidence',   desc: 'Attach photos for faster resolution' },
                 { step: '04', title: 'Track & Get Feedback', desc: 'Monitor status and rate the resolution' },
               ].map((s, i) => (
@@ -630,20 +510,9 @@ function Header({ navigate, lang }) {
         </div>
         <div style={{ display: 'flex', gap: 9 }}>
           <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-<<<<<<< HEAD
-            onClick={() => navigate('/citizen/track')}>
-            {tx('🔍 Track Complaint', lang)}
-          </button>
-          <button style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: '#E8620A', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-            onClick={() => navigate('/login')}>
-            {tx('Login', lang)} →
-          </button>
-=======
             onClick={() => navigate('/citizen/track')}>{tx('🔍 Track Complaint', lang)}</button>
           <button style={{ padding: '7px 16px', borderRadius: 8, border: 'none', background: '#E8620A', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
-            onClick={() => navigate('/login')}>{tx('Login', lang)} →</button>
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
-        </div>
+            onClick={() => navigate('/login')}>{tx('Login', lang)} →</button>        </div>
       </header>
     </>
   );
@@ -695,8 +564,4 @@ const styles = {
   successRow:    { display: 'flex', justifyContent: 'space-between', marginBottom: 12, paddingBottom: 12, borderBottom: '1px solid #E8EEF8' },
   successKey:    { fontSize: 13, color: '#6B7FA3', fontWeight: 600 },
   successVal:    { fontSize: 13, color: '#0F2557', fontWeight: 600 },
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
