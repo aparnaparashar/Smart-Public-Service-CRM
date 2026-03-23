@@ -30,6 +30,9 @@ app.use('/api/dashboard', dashboardRoutes);
 const feedbackRoutes = require('./src/routes/feedbackRoutes');
 app.use('/api/feedback', feedbackRoutes);
 
+const chatbotRoutes = require('./src/routes/chatbotRoutes');
+app.use('/api/chatbot', chatbotRoutes);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

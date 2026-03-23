@@ -156,7 +156,7 @@ const sendStatusUpdate = async (complaint) => {
       icon:         '🔄',
       message:      `An officer has been assigned to your complaint and work has officially begun. You can track the live progress using the button below.`,
       extraRows: [
-        ['Assigned Officer', complaint.assignedTo || 'Field Officer'],
+        ['Assigned Officer', complaint.assignedOfficerName || 'Field Officer'],
         ['New Status',       '<span style="color:#2563eb;font-weight:700;">In Progress</span>'],
       ],
     },

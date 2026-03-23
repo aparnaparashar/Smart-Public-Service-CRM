@@ -102,8 +102,15 @@ const updateComplaintStatus = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Complaint not found' });
     }
 
-    sendStatusUpdate(complaint);
-    res.status(200).json({ success: true, data: complaint });
+   // Populate officer name for email
+const populatedComplaint = await Complaint.findById(complaint._id).lean();
+if (populatedComplaint.assignedTo) {
+  const User = require('../models/User');
+  const officer = await User.findById(populatedComplaint.assignedTo).select('name');
+  populatedComplaint.assignedOfficerName = officer?.name || 'Field Officer';
+}
+sendStatusUpdate(populatedComplaint);
+res.status(200).json({ success: true, data: complaint });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
