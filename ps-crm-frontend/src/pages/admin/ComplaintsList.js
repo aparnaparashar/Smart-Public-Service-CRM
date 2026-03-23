@@ -594,8 +594,4 @@ const modal = {
   photoGrid:    { display: 'flex', flexWrap: 'wrap', gap: 8 },
   photoThumb:   { width: 90, height: 90, objectFit: 'cover', borderRadius: 8, cursor: 'pointer', border: '2px solid #E8EEF8', transition: 'transform 0.15s' },
   emptyPhotos:  { background: '#F8FAFC', borderRadius: 8, padding: '20px', textAlign: 'center', color: '#9EB3CC', fontSize: 13 },
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> 50762842ae020949554923b9c70291784a52c3e7
