@@ -36,10 +36,7 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/public" element={<PublicDashboard />} />
             <Route path="/citizen/track" element={<TrackComplaint />} />
-            <Route path="/citizen/submit" element={<SubmitComplaint />} />
-
-            {/* Citizen */}
-            <Route path="/citizen/dashboard" element={<ProtectedRoute roles={['citizen']}><CitizenDashboard /></ProtectedRoute>} />
+            <Route path="/citizen/submit" element={<ProtectedRoute roles={['citizen']}><SubmitComplaint /></ProtectedRoute>} />
             <Route path="/citizen/feedback/:id" element={<ProtectedRoute roles={['citizen']}><FeedbackPage /></ProtectedRoute>} />
 
             {/* Admin */}
