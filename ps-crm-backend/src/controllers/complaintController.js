@@ -276,7 +276,19 @@ const submitComplaint = async (req, res) => {
 const getAllComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: complaints });
+    
+    // Transform to include citizen field for backward compatibility and all filer names
+    const transformed = complaints.map(c => {
+      const obj = c.toObject();
+      if (obj.filers && obj.filers.length > 0) {
+        obj.citizen = obj.filers[0].citizen; // First filer as primary citizen
+        obj.allCitizens = obj.filers.map(f => f.citizen); // All citizens for duplicates
+        obj.isDuplicate = obj.filers.length > 1;
+      }
+      return obj;
+    });
+    
+    res.status(200).json({ success: true, data: transformed });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -344,6 +356,13 @@ const getComplaintById = async (req, res) => {
     }
 
     const complaintObj = complaint.toObject();
+
+    // Add citizen field for backward compatibility and include all citizens
+    if (complaintObj.filers && complaintObj.filers.length > 0) {
+      complaintObj.citizen = complaintObj.filers[0].citizen; // First filer as primary
+      complaintObj.allCitizens = complaintObj.filers.map(f => f.citizen); // All citizens
+      complaintObj.isDuplicate = complaintObj.filers.length > 1;
+    }
 
     if (req.user?.email) {
       const matchedFiler = complaintObj.filers.find(
@@ -446,7 +465,19 @@ const getMyComplaints = async (req, res) => {
 const getAssignedComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find({ assignedTo: req.user._id.toString() }).sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: complaints });
+    
+    // Transform to include citizen field for backward compatibility
+    const transformed = complaints.map(c => {
+      const obj = c.toObject();
+      if (obj.filers && obj.filers.length > 0) {
+        obj.citizen = obj.filers[0].citizen; // First filer as primary citizen
+        obj.allCitizens = obj.filers.map(f => f.citizen); // All citizens for duplicates
+        obj.isDuplicate = obj.filers.length > 1;
+      }
+      return obj;
+    });
+    
+    res.status(200).json({ success: true, data: transformed });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }

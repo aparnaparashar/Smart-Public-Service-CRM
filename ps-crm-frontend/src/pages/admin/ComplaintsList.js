@@ -261,7 +261,10 @@ export default function ComplaintsList() {
                     </td>
 
                     <td style={styles.td}>
-                      <div style={{ fontWeight: 600, fontSize: 13 }}>{c.citizen?.name}</div>
+                      <div style={{ fontWeight: 600, fontSize: 13 }}>
+                        {c.citizen?.name}
+                        {c.isDuplicate && <span style={{ fontSize: 10, color: '#6B7FA3', marginLeft: 6 }}>+{c.allCitizens?.length - 1} more</span>}
+                      </div>
                       <div style={{ fontSize: 11, color: '#6B7FA3' }}>{c.citizen?.email}</div>
                     </td>
 
@@ -375,16 +378,47 @@ export default function ComplaintsList() {
                       { label: 'Urgency',      value: d?.urgency },
                       { label: 'Ward',         value: d?.location?.ward || 'N/A' },
                       { label: 'Address',      value: d?.location?.address || 'N/A' },
-                      { label: 'Citizen',      value: d?.citizen?.name },
-                      { label: 'Phone',        value: d?.citizen?.phone || 'N/A' },
-                      { label: 'SLA Deadline', value: d?.sla?.deadline ? new Date(d.sla.deadline).toLocaleDateString('en-IN') : 'N/A' },
-                      { label: 'Status',       value: d?.status },
                     ].map((item, i) => (
                       <div key={i} style={modal.gridItem}>
                         <div style={modal.gridLabel}>{item.label}</div>
                         <div style={modal.gridValue}>{item.value}</div>
                       </div>
                     ))}
+                  </div>
+
+                  {/* ── Citizens Section (handles duplicates) ── */}
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#F0FBFF', borderRadius: 8, border: '1px solid #7DD3FC' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0369A1', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>👥 Reporter(s)</div>
+                    {d?.isDuplicate ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {d?.allCitizens?.map((citizen, idx) => (
+                          <div key={idx} style={{ padding: '8px 0', borderBottom: idx < d.allCitizens.length - 1 ? '1px solid #BAE6FD' : 'none' }}>
+                            <div style={{ fontWeight: 600, fontSize: 13, color: '#0F2557' }}>{citizen?.name}</div>
+                            <div style={{ fontSize: 11, color: '#6B7FA3' }}>{citizen?.email}</div>
+                            {citizen?.phone && <div style={{ fontSize: 11, color: '#6B7FA3' }}>{citizen.phone}</div>}
+                          </div>
+                        ))}
+                        <div style={{ fontSize: 11, color: '#0369A1', fontStyle: 'italic', marginTop: 6 }}>⚠️ Multiple citizens reported this issue from the same location</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: '#0F2557' }}>{d?.citizen?.name}</div>
+                        <div style={{ fontSize: 11, color: '#6B7FA3' }}>{d?.citizen?.email}</div>
+                        {d?.citizen?.phone && <div style={{ fontSize: 11, color: '#6B7FA3' }}>{d?.citizen?.phone}</div>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ── SLA Deadline ── */}
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#FEF3C7', borderRadius: 8, border: '1px solid #FBBF24' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#D97706', marginBottom: 4 }}>⏱️ SLA Deadline</div>
+                    <div style={{ fontSize: 13, color: '#3A4E70' }}>{d?.sla?.deadline ? new Date(d.sla.deadline).toLocaleDateString('en-IN') : 'N/A'}</div>
+                  </div>
+
+                  {/* ── Status ── */}  
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#F3F4F6', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7FA3', marginBottom: 4 }}>📊 Current Status</div>
+                    <div style={{ fontSize: 13, color: '#0F2557', fontWeight: 600 }}>{d?.status}</div>
                   </div>
 
                   <div style={{ marginTop: 12, padding: '12px 16px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E8EEF8' }}>
