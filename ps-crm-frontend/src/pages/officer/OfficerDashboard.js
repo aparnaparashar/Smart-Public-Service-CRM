@@ -264,7 +264,10 @@ export default function OfficerDashboard() {
                         <span style={{ fontSize: 11, background: '#EEF2FF', color: '#0F2557', padding: '2px 8px', borderRadius: 4, marginTop: 4, display: 'inline-block' }}>{T(c.category)}</span>
                       </td>
                       <td style={styles.td}>
-                        <div style={{ fontWeight: 600, fontSize: 13 }}>{c.citizen?.name}</div>
+                        <div style={{ fontWeight: 600, fontSize: 13 }}>
+                          {c.citizen?.name}
+                          {c.isDuplicate && <span style={{ fontSize: 10, color: '#6B7FA3', marginLeft: 6 }}>+{c.allCitizens?.length - 1} more</span>}
+                        </div>
                         <div style={{ fontSize: 11, color: '#6B7FA3' }}>{c.citizen?.phone || 'N/A'}</div>
                       </td>
                       <td style={styles.td}><span style={{ ...styles.badge, background: urgencyColor[c.urgency]?.bg, color: urgencyColor[c.urgency]?.color }}>{T(c.urgency)}</span></td>
@@ -343,16 +346,47 @@ export default function OfficerDashboard() {
                       { label: 'Urgency',      value: T(vd?.urgency) },
                       { label: 'Ward',         value: vd?.location?.ward || 'N/A' },
                       { label: 'Address',      value: vd?.location?.address || 'N/A' },
-                      { label: 'Citizen',      value: vd?.citizen?.name },
-                      { label: 'Phone',        value: vd?.citizen?.phone || 'N/A' },
-                      { label: 'SLA Deadline', value: vd?.sla?.deadline ? new Date(vd.sla.deadline).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN') : 'N/A' },
-                      { label: 'Status',       value: T(vd?.status) },
                     ].map((item, i) => (
                       <div key={i} style={mStyles.gridItem}>
                         <div style={mStyles.gridLabel}>{T(item.label)}</div>
                         <div style={mStyles.gridValue}>{item.value}</div>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Citizens Section (handles duplicates) */}
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#F0FBFF', borderRadius: 8, border: '1px solid #7DD3FC' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#0369A1', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.5 }}>👥 {T('Citizen')}</div>
+                    {vd?.isDuplicate ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {vd?.allCitizens?.map((citizen, idx) => (
+                          <div key={idx} style={{ padding: '8px 0', borderBottom: idx < vd.allCitizens.length - 1 ? '1px solid #BAE6FD' : 'none' }}>
+                            <div style={{ fontWeight: 600, fontSize: 13, color: '#0F2557' }}>{citizen?.name}</div>
+                            <div style={{ fontSize: 11, color: '#6B7FA3' }}>{citizen?.email}</div>
+                            {citizen?.phone && <div style={{ fontSize: 11, color: '#6B7FA3' }}>{citizen.phone}</div>}
+                          </div>
+                        ))}
+                        <div style={{ fontSize: 11, color: '#0369A1', fontStyle: 'italic', marginTop: 6 }}>⚠️ {T('Multiple citizens reported this issue from the same location')}</div>
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: 13, color: '#0F2557' }}>{vd?.citizen?.name}</div>
+                        <div style={{ fontSize: 11, color: '#6B7FA3' }}>{vd?.citizen?.email}</div>
+                        {vd?.citizen?.phone && <div style={{ fontSize: 11, color: '#6B7FA3' }}>{vd?.citizen?.phone}</div>}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SLA Deadline */}
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#FEF3C7', borderRadius: 8, border: '1px solid #FBBF24' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#D97706', marginBottom: 4 }}>⏱️ {T('SLA Deadline')}</div>
+                    <div style={{ fontSize: 13, color: '#3A4E70' }}>{vd?.sla?.deadline ? new Date(vd.sla.deadline).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN') : 'N/A'}</div>
+                  </div>
+
+                  {/* Status */}
+                  <div style={{ marginTop: 12, padding: '12px 16px', background: '#F3F4F6', borderRadius: 8, border: '1px solid #E5E7EB' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#6B7FA3', marginBottom: 4 }}>📊 {T('Current Status')}</div>
+                    <div style={{ fontSize: 13, color: '#0F2557', fontWeight: 600 }}>{T(vd?.status)}</div>
                   </div>
 
                   {/* Description */}

@@ -27,8 +27,270 @@ const CATEGORY_MAP = {
 
 const ALL_CATEGORIES = Object.keys(CATEGORY_MAP);
 
-const WARDS = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
-               'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+const WARD_ZONE_MAP = {
+  // Central Zone
+  'Chandni Chowk': 'Central Zone',
+  'Chandani Mahal': 'Central Zone',
+  'Delhi Gate': 'Central Zone',
+  'Bazar Sita Ram': 'Central Zone',
+  'Ballimaran': 'Central Zone',
+  'Ram Nagar': 'Central Zone',
+  'Quraish Nagar': 'Central Zone',
+  'Pahar Ganj': 'Central Zone',
+  'Karol Bagh': 'Central Zone',
+  'Dev Nagar': 'Central Zone',
+  'West Patel Nagar': 'Central Zone',
+  'East Patel Nagar': 'Central Zone',
+  'Ranjeet Nagar': 'Central Zone',
+  'Baljeet Nagar': 'Central Zone',
+  'Karam Pura': 'Central Zone',
+  'Moti Nagar': 'Central Zone',
+  'Ramesh Nagar': 'Central Zone',
+  'Punjabi Bagh': 'Central Zone',
+  'Civil Lines': 'Central Zone',
+  'Jama Masjid': 'Central Zone',
+  'Sadar Bazar': 'Central Zone',
+  'Model Town': 'Central Zone',
+  'Kamla Nagar': 'Central Zone',
+  'Shastri Nagar': 'Central Zone',
+  'Kishan Ganj': 'Central Zone',
+  'Daryaganj': 'Central Zone',
+  'Sidhartha Nagar': 'Central Zone',
+  'Lajpat Nagar': 'Central Zone',
+  'Andrews Ganj': 'Central Zone',
+  'Amar Colony': 'Central Zone',
+  'Kotla Mubarakpur': 'Central Zone',
+  'Hauz Khas': 'Central Zone',
+  'Malviya Nagar': 'Central Zone',
+  'Green Park': 'Central Zone',
+  'Munirka': 'Central Zone',
+  'R.K Puram': 'Central Zone',
+  'Vasant Vihar': 'Central Zone',
+  'Lado Sarai': 'Central Zone',
+  'Mehrauli': 'Central Zone',
+  'Vasant Kunj': 'Central Zone',
+  'Aya Nagar': 'Central Zone',
+  'Bhati': 'Central Zone',
+  'Chhatarpur': 'Central Zone',
+  'Said-Ul-Ajaib': 'Central Zone',
+  'Deoli': 'Central Zone',
+  'Tigri': 'Central Zone',
+  'Sangam Vihar-A': 'Central Zone',
+  'Dakshin Puri': 'Central Zone',
+  'Madangir': 'Central Zone',
+  'Pushp Vihar': 'Central Zone',
+  'Khanpur': 'Central Zone',
+  'Sangam Vihar-C': 'Central Zone',
+  'Sangam Vihar-B': 'Central Zone',
+  'Tughlakabad Extension': 'Central Zone',
+  'Chitaranjan Park': 'Central Zone',
+  'Chirag Delhi': 'Central Zone',
+  'Greater Kailash': 'Central Zone',
+  'Sri Niwas Puri': 'Central Zone',
+  'Kalkaji': 'Central Zone',
+  'Govind Puri': 'Central Zone',
+  'Harkesh Nagar': 'Central Zone',
+  'Tughlakabad': 'Central Zone',
+  'Pul Pehladpur': 'Central Zone',
+  'Badarpur': 'Central Zone',
+  'Molarband': 'Central Zone',
+  'Meethapur': 'Central Zone',
+  'Hari Nagar Extension': 'Central Zone',
+  'Jaitpur': 'Central Zone',
+  'Madanpur Khadar East': 'Central Zone',
+  'Madanpur Khadar West': 'Central Zone',
+  'Sarita Vihar': 'Central Zone',
+  'Abul Fazal Enclave': 'Central Zone',
+  'Zakir Nagar': 'Central Zone',
+  'New Ashok Nagar': 'Central Zone',
+  'Mayur Vihar Phase-I': 'Central Zone',
+  'Trilokpuri': 'Central Zone',
+  'Kondli': 'Central Zone',
+  'Gharoli': 'Central Zone',
+  'Kalyanpuri': 'Central Zone',
+  'Mayur Vihar Phase-II': 'Central Zone',
+  'Patpar Ganj': 'Central Zone',
+  'Vinod Nagar': 'Central Zone',
+  'Mandawali': 'Central Zone',
+  'Pandav Nagar': 'Central Zone',
+  'Lalita Park': 'Central Zone',
+  'Shakarpur': 'Central Zone',
+  'Laxmi Nagar': 'Central Zone',
+  'Preet Vihar': 'Central Zone',
+  'I.P Extension': 'Central Zone',
+  'Anand Vihar': 'Central Zone',
+  'Vishwas Nagar': 'Central Zone',
+  'Anarkali': 'Central Zone',
+  'Jagat Puri': 'Central Zone',
+  'Geeta Colony': 'Central Zone',
+  'Krishna Nagar': 'Central Zone',
+  'Gandhi Nagar': 'Central Zone',
+  'Shastri Park': 'Central Zone',
+  'Azad Nagar': 'Central Zone',
+  'Shahdara': 'Central Zone',
+  'Jhilmil': 'Central Zone',
+  'Dilshad Colony': 'Central Zone',
+  'Sundar Nagri': 'Central Zone',
+  'Dilshad Garden': 'Central Zone',
+  'Nand Nagri': 'Central Zone',
+  'Ashok Nagar': 'Central Zone',
+  'Ram Nagar East': 'Central Zone',
+  'Rohtash Nagar': 'Central Zone',
+  'Welcome Colony': 'Central Zone',
+  'Seelampur': 'Central Zone',
+  'Gautam Puri': 'Central Zone',
+  'Chauhan Banger': 'Central Zone',
+  'Maujpur': 'Central Zone',
+  'Braham Puri': 'Central Zone',
+  'Bhajanpura': 'Central Zone',
+  'Ghonda': 'Central Zone',
+  'Yamuna Vihar': 'Central Zone',
+  'Subash Mohalla': 'Central Zone',
+  'Kabir Nagar': 'Central Zone',
+  'Gorakh Park': 'Central Zone',
+  'Kardam Puri': 'Central Zone',
+  'Harsh Vihar': 'Central Zone',
+  'Saboli': 'Central Zone',
+  'Gokal Puri': 'Central Zone',
+  'Joharipur': 'Central Zone',
+  'Karawal Nagar-East': 'Central Zone',
+  'Dayalpur': 'Central Zone',
+  'Mustafabad': 'Central Zone',
+  'Nehru Vihar': 'Central Zone',
+  'Brij Puri': 'Central Zone',
+  'Sri Ram Colony': 'Central Zone',
+  'Sadatpur': 'Central Zone',
+  'Karawal Nagar-West': 'Central Zone',
+  'Sonia Vihar': 'Central Zone',
+  'Sabapur': 'Central Zone',
+
+  // North Zone
+  'Narela': 'North Zone',
+  'Bankner': 'North Zone',
+  'Holambi Kalan': 'North Zone',
+  'Alipur': 'North Zone',
+  'Bakhtawarpur': 'North Zone',
+  'Burari': 'North Zone',
+  'Kadipur': 'North Zone',
+  'Mukundpur': 'North Zone',
+  'Sant Nagar': 'North Zone',
+  'Jharoda': 'North Zone',
+  'Timarpur': 'North Zone',
+  'Malka Ganj': 'North Zone',
+  'Mukherjee Nagar': 'North Zone',
+  'Dhirpur': 'North Zone',
+  'Adarsh Nagar': 'North Zone',
+  'Azadpur': 'North Zone',
+  'Bhalswa': 'North Zone',
+  'Jahangir Puri': 'North Zone',
+  'Sarup Nagar': 'North Zone',
+  'Samaypur Badli': 'North Zone',
+
+  // North West Zone
+  'Rohini-A': 'North West Zone',
+  'Rohini-B': 'North West Zone',
+  'Rithala': 'North West Zone',
+  'Vijay Vihar': 'North West Zone',
+  'Budh Vihar': 'North West Zone',
+  'Pooth Kalan': 'North West Zone',
+  'Begumpur': 'North West Zone',
+  'Shahbaad Dairy': 'North West Zone',
+  'Pooth Khurd': 'North West Zone',
+  'Bawana': 'North West Zone',
+  'Nangal Thakran': 'North West Zone',
+  'Kanjhawala': 'North West Zone',
+  'Rani Khera': 'North West Zone',
+  'Nangloi': 'North West Zone',
+  'Nilothi': 'North West Zone',
+  'Kirari': 'North West Zone',
+  'Prem Nagar': 'North West Zone',
+  'Nithari': 'North West Zone',
+  'Aman Vihar': 'North West Zone',
+  'Mangol Puri': 'North West Zone',
+  'Sultanpuri-A': 'North West Zone',
+  'Sultanpuri-B': 'North West Zone',
+  'Jawalapuri': 'North West Zone',
+  'Nangloi Jat': 'North West Zone',
+  'Nihal Vihar': 'North West Zone',
+  'Guru Harkishan Nagar': 'North West Zone',
+  'Mangolpuri-A': 'North West Zone',
+  'Mangolpuri-B': 'North West Zone',
+  'Rohini-C': 'North West Zone',
+  'Rohini-F': 'North West Zone',
+  'Rohini-E': 'North West Zone',
+  'Rohini-D': 'North West Zone',
+  'Shalimar Bagh-A': 'North West Zone',
+  'Shalimar Bagh-B': 'North West Zone',
+  'Pitam Pura': 'North West Zone',
+  'Saraswati Vihar': 'North West Zone',
+  'Paschim Vihar': 'North West Zone',
+  'Rani Bagh': 'North West Zone',
+  'Kohat Enclave': 'North West Zone',
+  'Shakur Pur': 'North West Zone',
+  'Tri Nagar': 'North West Zone',
+  'Keshav Puram': 'North West Zone',
+  'Ashok Vihar': 'North West Zone',
+  'Wazir Pur': 'North West Zone',
+  'Sangam Park': 'North West Zone',
+
+  // West Zone
+  'Madipur': 'West Zone',
+  'Raghubir Nagar': 'West Zone',
+  'Vishnu Garden': 'West Zone',
+  'Rajouri Garden': 'West Zone',
+  'Chaukhandi Nagar': 'West Zone',
+  'Subhash Nagar': 'West Zone',
+  'Hari Nagar': 'West Zone',
+  'Fateh Nagar': 'West Zone',
+  'Tilak Nagar': 'West Zone',
+  'Khyala': 'West Zone',
+  'Keshopur': 'West Zone',
+  'Janak Puri South': 'West Zone',
+  'Mahaveer Enclave': 'West Zone',
+  'Janak Puri West': 'West Zone',
+  'Vikas Puri': 'West Zone',
+  'Hastsal': 'West Zone',
+  'Shiv Vihar': 'West Zone',
+  'Bhakkar Wala': 'West Zone',
+  'Baprola': 'West Zone',
+  'Vikas Nagar': 'West Zone',
+  'Mohan Garden-West': 'West Zone',
+  'Mohan Garden-East': 'West Zone',
+  'Uttam Nagar': 'West Zone',
+  'Binda Pur': 'West Zone',
+  'Dabri': 'West Zone',
+  'Sagarpur': 'West Zone',
+  'Manglapuri': 'West Zone',
+
+  // South West Zone
+  'Dwarka-B': 'South West Zone',
+  'Dwarka-A': 'South West Zone',
+  'Matiala': 'South West Zone',
+  'Kakrola': 'South West Zone',
+  'Nangli Sakrawati': 'South West Zone',
+  'Chhawala': 'South West Zone',
+  'Isapur': 'South West Zone',
+  'Najafgarh': 'South West Zone',
+  'Dichaon Kalan': 'South West Zone',
+  'Roshan Pura': 'South West Zone',
+  'Dwarka-C': 'South West Zone',
+  'Bijwasan': 'South West Zone',
+  'Kapashera': 'South West Zone',
+  'Mahipalpur': 'South West Zone',
+  'Raj Nagar': 'South West Zone',
+  'Palam': 'South West Zone',
+  'Madhu Vihar': 'South West Zone',
+  'Mahavir Enclave': 'South West Zone',
+  'Sadh Nagar': 'South West Zone',
+  'Naraina': 'South West Zone',
+  'Inder Puri': 'South West Zone',
+  'Rajinder Nagar': 'South West Zone',
+
+  // New Delhi Zone
+  'Inder Puri': 'New Delhi Zone',
+  'Rajinder Nagar': 'New Delhi Zone'
+};
+const WARDS = Object.keys(WARD_ZONE_MAP);
 
 // ── useVoice hook (Mayur's feature) ─────────────────────────────────────────
 function useVoice(lang, onResult) {
@@ -118,7 +380,7 @@ export default function SubmitComplaint() {
   const [form, setForm] = useState({
     title: '', description: '', category: 'Other', urgency: 'Low',
     citizen: { name: user?.name || '', email: user?.email || '', phone: '' },
-    location: { address: '', ward: '' },
+    location: { line1: '', line2: '', ward: '', zone: '' },
   });
   const [images, setImages]       = useState([]);
   const [aiResult, setAiResult]   = useState(null);
@@ -176,8 +438,16 @@ export default function SubmitComplaint() {
       setError(lang === 'hi' ? 'आपका नाम और ईमेल आवश्यक हैं।' : 'Your name and email are required.');
       return;
     }
+    if (!form.location.line1.trim()) {
+      setError(lang === 'hi' ? 'लाइन 1 अनिवार्य है।' : 'Line 1 is required.');
+      return;
+    }
     if (!form.location.ward.trim()) {
       setError(lang === 'hi' ? 'कृपया वार्ड चुनें।' : 'Please select your Ward.');
+      return;
+    }
+    if (!form.location.zone.trim()) {
+      setError(lang === 'hi' ? 'कृपया जोन स्वचालित रूप से सेट किया गया है।' : 'Zone should be auto-selected based on ward.');
       return;
     }
     setLoading(true); setError('');
@@ -401,33 +671,59 @@ export default function SubmitComplaint() {
               )}
             </div>
 
-            {/* Location — Address with voice (Mayur) */}
+            {/* Location — Line1/Line2/Ward/Zone */}
             <div style={{ ...styles.card, marginTop: 16 }}>
               <div style={styles.cardTitle}>{tx('📍 Location Details', lang)}</div>
+
+              <div style={{ marginBottom: 16, fontWeight: 'bold', color: '#0F2557' }}>
+                {tx('Address', lang)}
+              </div>
+
               <div style={styles.formRow}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>{tx('Address', lang)}</label>
-                  <VoiceInput
-                    lang={lang}
-                    value={form.location.address}
-                    onChange={(val) => setForm(f => ({ ...f, location: { ...f.location, address: val } }))}
-                    placeholder={tx('Street, area or landmark', lang)}
-                  />
+                  <label style={styles.label}>{tx('Line 1 *', lang)}</label>
+                  <input style={styles.input} value={form.location.line1}
+                    onChange={e => setForm(f => ({ ...f, location: { ...f.location, line1: e.target.value } }))}
+                    placeholder={tx('Building/House No. and Street', lang)} />
                 </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{tx('Line 2', lang)}</label>
+                  <input style={styles.input} value={form.location.line2}
+                    onChange={e => setForm(f => ({ ...f, location: { ...f.location, line2: e.target.value } }))}
+                    placeholder={tx('Area / Landmark / Sector', lang)} />
+                </div>
+              </div>
+
+              <div style={styles.formRow}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>
                     {tx('Ward', lang)} * <span style={{ fontSize: 11, color: '#E8620A', fontWeight: 400 }}>({lang === 'hi' ? 'अनिवार्य' : 'required'})</span>
                   </label>
                   <select style={{ ...styles.input, borderColor: form.location.ward ? '#16A34A' : '#E8620A', color: form.location.ward ? '#0F2557' : '#9EB3CC' }}
-                    value={form.location.ward} onChange={e => setForm(f => ({ ...f, location: { ...f.location, ward: e.target.value } }))}>
+                    value={form.location.ward}
+                    onChange={e => {
+                      const wardValue = e.target.value;
+                      setForm(f => ({
+                        ...f,
+                        location: {
+                          ...f.location,
+                          ward: wardValue,
+                          zone: wardValue ? WARD_ZONE_MAP[wardValue] || '' : ''
+                        }
+                      }));
+                    }}>
                     <option value="">{lang === 'hi' ? '-- वार्ड चुनें --' : '-- Select Ward --'}</option>
-                    {WARDS.map(w => <option key={w} value={`Ward ${w}`}>Ward {w}</option>)}
+                    {WARDS.map(w => <option key={w} value={w}>{w}</option>)}
                   </select>
                   {!form.location.ward && (
                     <div style={{ fontSize: 11, color: '#E8620A', marginTop: 4 }}>
                       {lang === 'hi' ? '📍 वार्ड चुनें — सार्वजनिक डैशबोर्ड के लिए जरूरी' : '📍 Required for Ward-wise data on Public Dashboard'}
                     </div>
                   )}
+                </div>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>{tx('Zone', lang)}</label>
+                  <input style={styles.input} value={form.location.zone} readOnly placeholder={tx('Auto-selected from ward', lang)} />
                 </div>
               </div>
             </div>

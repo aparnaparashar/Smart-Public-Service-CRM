@@ -42,6 +42,25 @@ const VALID_CATEGORIES = [
   'Encroachment', 'Signage', 'Other',
 ];
 
+const CATEGORY_BY_DEPARTMENT = {
+  'Sanitation & Solid Waste Management': 'Sanitation',
+  'Roads & Infrastructure': 'Roads',
+  'Water Supply & Drainage': 'Water',
+  'Street Lighting': 'Electricity',
+  'Health Services': 'Health',
+  'Education (MCD Schools)': 'Education',
+  'Building & Planning': 'Infrastructure',
+  'Parks & Horticulture': 'Environment',
+  'Property Tax': 'Finance',
+  'Birth & Death Registration': 'Administration',
+  'Food Safety & Slaughterhouse': 'Food Safety',
+  'Fire Services': 'Safety',
+  'Veterinary Services': 'Animal Welfare',
+  'Encroachment Removal': 'Encroachment',
+  'Advertisement & Signage': 'Signage',
+  'Other': 'Other',
+};
+
 const VALID_URGENCIES = ['High', 'Medium', 'Low'];
 
 const CLASSIFICATION_PROMPT = (title, description) => `You are an expert AI classifier for a Delhi Municipal Corporation (MCD) public grievance portal in India.
@@ -148,7 +167,13 @@ const submitComplaint = async (req, res) => {
       ...rest
     } = req.body;
 
-    const { ward = '', locality = '', address = '' } = location;
+    const { line1 = '', line2 = '', ward = '', locality = '', zone = '' } = location;
+    if (!line1.trim()) {
+      return res.status(400).json({ success: false, message: 'Location line1 is required' });
+    }
+    if (!ward.trim()) {
+      return res.status(400).json({ success: false, message: 'Ward is required' });
+    }
     const deadline = setSLADeadline(urgency);
 
     // ── 1. Build dedup fingerprint ──────────────────────────────────────────
@@ -224,7 +249,7 @@ const submitComplaint = async (req, res) => {
       urgency,
       duplicateKey,
       descriptionEmbedding: incomingEmbedding ?? undefined,
-      location: { address, ward, locality },
+      location: { line1, line2, ward, locality, zone },
       filers: [{
         citizen: {
           name:  citizen.name  || '',
@@ -257,7 +282,19 @@ const submitComplaint = async (req, res) => {
 const getAllComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: complaints });
+    
+    // Transform to include citizen field for backward compatibility and all filer names
+    const transformed = complaints.map(c => {
+      const obj = c.toObject();
+      if (obj.filers && obj.filers.length > 0) {
+        obj.citizen = obj.filers[0].citizen; // First filer as primary citizen
+        obj.allCitizens = obj.filers.map(f => f.citizen); // All citizens for duplicates
+        obj.isDuplicate = obj.filers.length > 1;
+      }
+      return obj;
+    });
+    
+    res.status(200).json({ success: true, data: transformed });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -325,6 +362,13 @@ const getComplaintById = async (req, res) => {
     }
 
     const complaintObj = complaint.toObject();
+
+    // Add citizen field for backward compatibility and include all citizens
+    if (complaintObj.filers && complaintObj.filers.length > 0) {
+      complaintObj.citizen = complaintObj.filers[0].citizen; // First filer as primary
+      complaintObj.allCitizens = complaintObj.filers.map(f => f.citizen); // All citizens
+      complaintObj.isDuplicate = complaintObj.filers.length > 1;
+    }
 
     if (req.user?.email) {
       const matchedFiler = complaintObj.filers.find(
@@ -427,7 +471,19 @@ const getMyComplaints = async (req, res) => {
 const getAssignedComplaints = async (req, res) => {
   try {
     const complaints = await Complaint.find({ assignedTo: req.user._id.toString() }).sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: complaints });
+    
+    // Transform to include citizen field for backward compatibility
+    const transformed = complaints.map(c => {
+      const obj = c.toObject();
+      if (obj.filers && obj.filers.length > 0) {
+        obj.citizen = obj.filers[0].citizen; // First filer as primary citizen
+        obj.allCitizens = obj.filers.map(f => f.citizen); // All citizens for duplicates
+        obj.isDuplicate = obj.filers.length > 1;
+      }
+      return obj;
+    });
+    
+    res.status(200).json({ success: true, data: transformed });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -443,10 +499,11 @@ const parseAIResponse = (raw) => {
     parsed = JSON.parse(cleaned);
   } catch (e) {
     // ✅ IMPROVED: Handle malformed JSON with more robust regex patterns
-    const catMatch  = cleaned.match(/"?category"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'category'\s*:\s*'([^']+)'/i);
-    const urgMatch  = cleaned.match(/"?urgency"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'urgency'\s*:\s*'([^']+)'/i);
-    const deptMatch = cleaned.match(/"?department"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'department'\s*:\s*'([^']+)'/i);
-    const resMatch  = cleaned.match(/"?reason"?\s*:\s*"([^"]+)"/i) || cleaned.match(/'reason'\s*:\s*'([^']+)'/i);
+    // Use a pattern that captures everything inside quotes, including special chars like &
+    const catMatch  = cleaned.match(/"category"\s*:\s*"([^"]+)"/i);
+    const urgMatch  = cleaned.match(/"urgency"\s*:\s*"([^"]+)"/i);
+    const deptMatch = cleaned.match(/"department"\s*:\s*"([^"]+)"/i);
+    const resMatch  = cleaned.match(/"reason"\s*:\s*"([^"]+)"/i);
     
     parsed = {
       category:   catMatch?.[1]?.trim() || 'Other',
@@ -458,18 +515,48 @@ const parseAIResponse = (raw) => {
     console.log('[parseAIResponse] Recovered from malformed JSON:', parsed);
   }
   
-  const finalCategory   = VALID_CATEGORIES.includes(parsed.category)   ? parsed.category   : 'Other';
-  const finalUrgency    = VALID_URGENCIES.includes(parsed.urgency)      ? parsed.urgency    : 'Low';
-  const finalDepartment = VALID_DEPARTMENTS.includes(parsed.department) ? parsed.department : 'Other';
-  
+  let finalCategory   = VALID_CATEGORIES.includes(parsed.category)   ? parsed.category   : null;
+  let finalUrgency    = VALID_URGENCIES.includes(parsed.urgency)      ? parsed.urgency    : null;
+  let finalDepartment = VALID_DEPARTMENTS.includes(parsed.department) ? parsed.department : null;
+
+  if (!finalCategory && finalDepartment && CATEGORY_BY_DEPARTMENT[finalDepartment]) {
+    finalCategory = CATEGORY_BY_DEPARTMENT[finalDepartment];
+  }
+
+  if (!finalCategory && parsed.department && CATEGORY_BY_DEPARTMENT[parsed.department]) {
+    finalCategory = CATEGORY_BY_DEPARTMENT[parsed.department];
+  }
+
+  if (!finalCategory && parsed.category && typeof parsed.category === 'string') {
+    const normalizedCat = parsed.category.trim();
+    for (const category of VALID_CATEGORIES) {
+      if (category.toLowerCase() === normalizedCat.toLowerCase()) {
+        finalCategory = category;
+        break;
+      }
+    }
+  }
+
+  if (!finalDepartment && finalCategory) {
+    finalDepartment = Object.keys(CATEGORY_BY_DEPARTMENT).find(dep => CATEGORY_BY_DEPARTMENT[dep] === finalCategory);
+  }
+
+  finalCategory   = finalCategory || 'Other';
+  finalUrgency    = finalUrgency  || 'Low';
+  finalDepartment = finalDepartment || 'Other';
+
   // ✅ DEBUG: Log if fallback to 'Other' happened
-  if (finalCategory === 'Other' && parsed.category !== 'Other') {
+  if (finalCategory === 'Other' && parsed.category && parsed.category !== 'Other') {
     console.log(`[parseAIResponse] Invalid category "${parsed.category}" — using "Other"`);
   }
-  
-  return { category: finalCategory, urgency: finalUrgency, department: finalDepartment, reason: parsed.reason || 'AI classified' };
-};
 
+  return {
+    category: finalCategory,
+    urgency: finalUrgency,
+    department: finalDepartment,
+    reason: parsed.reason || 'AI classified',
+  };
+};
 // ─── POST /api/complaints/classify ───────────────────────────────────────────
 
 const classifyComplaint = async (req, res) => {

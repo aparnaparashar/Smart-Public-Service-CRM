@@ -77,7 +77,6 @@ const complaintSchema = new mongoose.Schema(
 
     // ── Location (the shared, de-duplication-relevant location) ─────────────
     location: {
-      address:  { type: String },
       ward:     { type: String },
       locality: { type: String },   // ← NEW: needed for dedup fingerprint
     },
