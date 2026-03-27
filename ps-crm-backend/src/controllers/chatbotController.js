@@ -163,7 +163,7 @@ function checkEligibility(profile) {
 // ── Translations ──────────────────────────────────────────────────────────────
 const T = {
   en: {
-    langSelect: { type: 'langSelect', text: 'Welcome to PS-CRM! Please select your language to continue.' },
+    langSelect: { type: 'langSelect', text: 'Welcome to JanMitra AI! Please select your language to continue.' },
     menu: { type: 'menu', text: 'How can I help you today? Please choose an option below.' },
     invalid: { type: 'text', text: 'Sorry, I didn\'t understand that. Please choose from the menu options below.' },
     cancel: { type: 'text', text: 'Conversation reset. How can I help you?' },
@@ -216,7 +216,7 @@ const T = {
     schemeInvalidOpt:{ type: 'text', text: 'Please choose from the options provided.' },
   },
   hi: {
-    langSelect: { type: 'langSelect', text: 'PS-CRM में आपका स्वागत है! जारी रखने के लिए भाषा चुनें।' },
+    langSelect: { type: 'langSelect', text: 'JanMitra AI में आपका स्वागत है! जारी रखने के लिए भाषा चुनें।' },
     menu: { type: 'menu', text: 'आज मैं आपकी कैसे मदद कर सकता हूँ? नीचे विकल्प चुनें।' },
     invalid: { type: 'text', text: 'क्षमा करें, मैं समझ नहीं पाया। कृपया मेनू से कोई विकल्प चुनें।' },
     cancel: { type: 'text', text: 'बातचीत रीसेट हो गई। मैं कैसे मदद करूं?' },
