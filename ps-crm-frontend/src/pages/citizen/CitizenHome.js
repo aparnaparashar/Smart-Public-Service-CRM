@@ -42,12 +42,12 @@ function CounterCard({ icon, label, target, suffix = '', color, percent }) {
   const [val, ref] = useAnimatedCounter(target);
   return (
     <div ref={ref} style={s.counterCard}>
-      <div style={{ ...s.counterIcon, background: color + '18', color }}>{icon}</div>
-      <div style={{ ...s.counterValue, color }}>{val.toLocaleString('en-IN')}{suffix}</div>
+      <div style={{ ...s.counterIcon, background: 'transparent', color: '#ffffff' }}>{icon}</div>
+      <div style={{ ...s.counterValue, color: '#ffffff' }}>{val.toLocaleString('en-IN')}{suffix}</div>
       <div style={s.counterLabel}>{label}</div>
       {percent !== undefined && (
         <div style={s.progressWrap}>
-          <div style={{ ...s.progressBar, width: `${Math.min(percent, 100)}%`, background: color }} />
+          <div style={{ ...s.progressBar, width: `${Math.min(percent, 100)}%`, background: '#ffffff' }} />
         </div>
       )}
     </div>
@@ -79,7 +79,7 @@ function NewsTicker({ items }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CITIZEN HOME — Unified Government Portal Design (No Emojis, Clean Layout)
+// CITIZEN HOME - Unified Government Portal Design (No Emojis, Clean Layout)
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function CitizenHome() {
   const navigate = useNavigate();
@@ -114,7 +114,7 @@ export default function CitizenHome() {
       title: T('Register Complaint'),
       desc: T('File a new grievance with photos & location'),
       path: '/citizen/submit',
-      color: '#E8620A',
+      color: '#FF9933',
       public: false
     },
     {
@@ -127,7 +127,7 @@ export default function CitizenHome() {
       title: T('Track Complaint'),
       desc: T('Check real-time status and SLA countdown'),
       path: '/citizen/track',
-      color: '#1565C0',
+      color: '#0F2557',
       public: true
     },
     {
@@ -140,7 +140,7 @@ export default function CitizenHome() {
       title: T('Notifications'),
       desc: T('View updates on your complaint progress'),
       path: '/notifications',
-      color: '#7C3AED',
+      color: '#138808',
       public: false
     },
     {
@@ -154,7 +154,7 @@ export default function CitizenHome() {
       title: T('Public Dashboard'),
       desc: T('Live transparency data and ward analytics'),
       path: '/public',
-      color: '#16A34A',
+      color: '#FF9933',
       public: true
     },
     {
@@ -166,7 +166,7 @@ export default function CitizenHome() {
       title: T('AI Assistant'),
       desc: T('Get instant help with complaint filing'),
       path: '/citizen/submit',
-      color: '#0891B2',
+      color: '#0F2557',
       public: false
     },
     {
@@ -179,29 +179,29 @@ export default function CitizenHome() {
       title: T('My Profile'),
       desc: T('Manage your account and preferences'),
       path: '/citizen/profile',
-      color: '#6D28D9',
+      color: '#138808',
       public: false
     },
   ];
 
   // ── Government Initiatives ────────────────────────────────────────────────
   const initiatives = [
-    { title: 'Swachh Delhi', desc: lang === 'hi' ? 'स्वच्छ दिल्ली अभियान — हर गली, हर मोहल्ला साफ़' : 'Clean Delhi mission — every lane, every neighbourhood', color: '#16A34A' },
-    { title: 'Smart City Delhi', desc: lang === 'hi' ? 'स्मार्ट शहरी अवसंरचना और डिजिटल सेवाएं' : 'Smart urban infrastructure and digital governance', color: '#1565C0' },
-    { title: lang === 'hi' ? 'महिला सुरक्षा' : 'Women Safety', desc: lang === 'hi' ? 'सुरक्षित दिल्ली — हेल्पलाइन, सीसीटीवी, पेट्रोलिंग' : 'Safe Delhi — helplines, CCTV, patrolling', color: '#DC2626' },
-    { title: lang === 'hi' ? 'जल प्रबंधन' : 'Water Management', desc: lang === 'hi' ? 'पानी की गुणवत्ता, आपूर्ति और जल संरक्षण' : 'Water quality monitoring, supply & conservation', color: '#0891B2' },
-    { title: lang === 'hi' ? 'सार्वजनिक स्वास्थ्य' : 'Public Health', desc: lang === 'hi' ? 'मोहल्ला क्लिनिक, टीकाकरण और स्वास्थ्य सेवाएं' : 'Mohalla clinics, vaccination & health services', color: '#7C3AED' },
+    { title: 'Swachh Delhi', desc: lang === 'hi' ? 'स्वच्छ दिल्ली अभियान - हर गली, हर मोहल्ला साफ़' : 'Clean Delhi mission - every lane, every neighbourhood', color: '#FF9933' },
+    { title: 'Smart City Delhi', desc: lang === 'hi' ? 'स्मार्ट शहरी अवसंरचना और डिजिटल सेवाएं' : 'Smart urban infrastructure and digital governance', color: '#0F2557' },
+    { title: lang === 'hi' ? 'महिला सुरक्षा' : 'Women Safety', desc: lang === 'hi' ? 'सुरक्षित दिल्ली - हेल्पलाइन, सीसीटीवी, पेट्रोलिंग' : 'Safe Delhi - helplines, CCTV, patrolling', color: '#138808' },
+    { title: lang === 'hi' ? 'जल प्रबंधन' : 'Water Management', desc: lang === 'hi' ? 'पानी की गुणवत्ता, आपूर्ति और जल संरक्षण' : 'Water quality monitoring, supply & conservation', color: '#FF9933' },
+    { title: lang === 'hi' ? 'सार्वजनिक स्वास्थ्य' : 'Public Health', desc: lang === 'hi' ? 'मोहल्ला क्लिनिक, टीकाकरण और स्वास्थ्य सेवाएं' : 'Mohalla clinics, vaccination & health services', color: '#0F2557' },
   ];
 
   // ── News items ────────────────────────────────────────────────────────────
   const newsItems = lang === 'hi' ? [
-    'दिल्ली जल बोर्ड: 16 जून को ज़ोन-3 में नियोजित रखरखाव — पानी की आपूर्ति प्रभावित हो सकती है',
-    'नई योजना: मुख्यमंत्री आवास योजना — पात्र नागरिक ऑनलाइन आवेदन करें',
+    'दिल्ली जल बोर्ड: 16 जून को ज़ोन-3 में नियोजित रखरखाव - पानी की आपूर्ति प्रभावित हो सकती है',
+    'नई योजना: मुख्यमंत्री आवास योजना - पात्र नागरिक ऑनलाइन आवेदन करें',
     'भीषण गर्मी चेतावनी: दोपहर 12–4 बजे बाहर निकलने से बचें। हेल्पलाइन: 1800-111-555',
     'PS-CRM अपडेट: अब डिजिटल लोक शिकायत सेवा सीधे उपयोग के लिए उपलब्ध है',
   ] : [
-    'Delhi Jal Board: Scheduled maintenance in Zone-3 on June 16 — water supply may be affected',
-    'New Scheme: Chief Minister Housing Scheme — eligible citizens can apply online now',
+    'Delhi Jal Board: Scheduled maintenance in Zone-3 on June 16 - water supply may be affected',
+    'New Scheme: Chief Minister Housing Scheme - eligible citizens can apply online now',
     'Extreme Heat Advisory: Avoid outdoor exposure 12 PM–4 PM. Helpline: 1800-111-555',
     'PS-CRM Update: Digital public grievance services are now fully operational online',
   ];
@@ -223,7 +223,7 @@ export default function CitizenHome() {
         .leader-item { transition: background-color 0.2s ease; }
         .leader-item:hover { background-color: rgba(255,255,255,0.06) !important; }
         .cabinet-card-item { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
-        .cabinet-card-item:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(15,37,87,0.1) !important; border-color: #1565C0 !important; }
+        .cabinet-card-item:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(15,37,87,0.1) !important; border-color: #0F2557 !important; }
       `}</style>
 
       <HeaderNavbar activeTab="home" />
@@ -234,7 +234,7 @@ export default function CitizenHome() {
       <NewsTicker items={newsItems} />
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 1 — HERO BANNER & Leadership Sidebar
+          SECTION 1 - HERO BANNER & Leadership Sidebar
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.hero}>
         <div style={s.heroImgWrap}>
@@ -270,7 +270,7 @@ export default function CitizenHome() {
             </div>
           </div>
 
-          {/* Delhi Leadership Sidebar Card — glassmorphism */}
+          {/* Delhi Leadership Sidebar Card - glassmorphism */}
           <div style={{ ...s.leadershipGlassCard, animation: 'fadeInUp 1s ease-out' }}>
             <div style={s.leadershipGlassHeader}>
               <span style={s.leadershipLiveDot} />
@@ -288,7 +288,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 1.5 — DELHI CABINET MINISTERS (Below Hero Banner)
+          SECTION 1.5 - DELHI CABINET MINISTERS (Below Hero Banner)
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.cabinetSection}>
         <div style={s.sectionInner}>
@@ -321,7 +321,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 2 — CITIZEN SERVICES (Quick Actions)
+          SECTION 2 - CITIZEN SERVICES (Quick Actions)
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.sectionWhite}>
         <div style={s.sectionInner}>
@@ -333,30 +333,34 @@ export default function CitizenHome() {
             {lang === 'hi' ? 'एक क्लिक में अपनी सरकारी सेवाओं तक पहुंचें' : 'Access all government services in one click'}
           </p>
           <div style={s.servicesGrid}>
-            {quickActions.map((a, i) => (
-              <div
-                key={i}
-                className="gov-card"
-                style={{ ...s.serviceCard, borderLeft: `5px solid ${a.color}` }}
-                onClick={() => {
-                  if (!a.public && !user) navigate('/login');
-                  else navigate(a.path);
-                }}
-              >
-                <div style={{ ...s.serviceIcon, background: a.color + '12', color: a.color }}>{a.icon}</div>
-                <div>
-                  <div style={s.serviceTitle}>{a.title}</div>
-                  <div style={s.serviceDesc}>{a.desc}</div>
+            {quickActions.map((a, i) => {
+              const tricolors = ['#FF9933', '#0F2557', '#138808'];
+              const boxColor = tricolors[i % 3];
+              return (
+                <div
+                  key={i}
+                  className="gov-card"
+                  style={{ ...s.serviceCard, borderLeft: `5px solid ${boxColor}` }}
+                  onClick={() => {
+                    if (!a.public && !user) navigate('/login');
+                    else navigate(a.path);
+                  }}
+                >
+                  <div style={{ ...s.serviceIcon, background: boxColor + '12', color: boxColor }}>{a.icon}</div>
+                  <div>
+                    <div style={s.serviceTitle}>{a.title}</div>
+                    <div style={s.serviceDesc}>{a.desc}</div>
+                  </div>
+                  <div style={{ ...s.serviceArrow, color: boxColor }}>›</div>
                 </div>
-                <div style={{ ...s.serviceArrow, color: a.color }}>›</div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 3 — GOVERNANCE TRANSPARENCY (Animated Counters)
+          SECTION 3 - GOVERNANCE TRANSPARENCY (Animated Counters)
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.sectionDark}>
         <div style={s.sectionInner}>
@@ -367,7 +371,7 @@ export default function CitizenHome() {
             </h2>
           </div>
           <p style={{ ...s.sectionSub, color: 'rgba(255,255,255,0.5)', marginBottom: 40 }}>
-            {lang === 'hi' ? 'वास्तविक समय के आंकड़े — सरकार की जवाबदेली' : 'Real-time metrics — government accountability at your fingertips'}
+            {lang === 'hi' ? 'वास्तविक समय के आंकड़े - सरकार की जवाबदेली' : 'Real-time metrics - government accountability at your fingertips'}
           </p>
           <div style={s.countersGrid}>
             <CounterCard
@@ -402,7 +406,7 @@ export default function CitizenHome() {
               }
               label={lang === 'hi' ? 'लंबित' : 'Pending Cases'}
               target={stats?.pending || 0}
-              color="#D97706"
+              color="#FF9933"
               percent={stats ? (stats.pending / (stats.total || 1)) * 100 : 0}
             />
             <CounterCard
@@ -415,7 +419,7 @@ export default function CitizenHome() {
               label={lang === 'hi' ? 'औसत समाधान समय' : 'Avg Resolution Time'}
               target={stats?.avgResponse || 0}
               suffix="h"
-              color="#1565C0"
+              color="#0F2557"
               percent={stats?.avgResponse ? Math.min((stats.avgResponse / 72) * 100, 100) : 0}
             />
             <CounterCard
@@ -427,7 +431,7 @@ export default function CitizenHome() {
               label={lang === 'hi' ? 'नागरिक संतुष्टि' : 'Citizen Satisfaction'}
               target={resolutionRate}
               suffix="%"
-              color="#7C3AED"
+              color="#138808"
               percent={resolutionRate}
             />
           </div>
@@ -435,7 +439,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 4 — GOVERNMENT INITIATIVES
+          SECTION 4 - GOVERNMENT INITIATIVES
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.sectionWhite}>
         <div style={s.sectionInner}>
@@ -475,7 +479,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 5 — PUBLIC NOTICES (Notice Board Style)
+          SECTION 5 - PUBLIC NOTICES (Notice Board Style)
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.sectionLight}>
         <div style={s.sectionInner}>
@@ -498,7 +502,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 6 — ABOUT PORTAL
+          SECTION 6 - ABOUT PORTAL
       ═══════════════════════════════════════════════════════════════════════ */}
       <section style={s.sectionWhite}>
         <div style={s.sectionInner}>
@@ -539,7 +543,7 @@ export default function CitizenHome() {
             <div style={s.aboutImgWrap}>
               <img src="/delhi-hero.png" alt="Delhi Monuments" style={s.aboutImg} />
               <div style={s.aboutImgLabel}>
-                {lang === 'hi' ? 'दिल्ली — भारत की राजधानी' : 'Delhi — Capital of India'}
+            {lang === 'hi' ? 'दिल्ली - भारत की राजधानी' : 'Delhi - Capital of India'}
               </div>
             </div>
           </div>
@@ -547,7 +551,7 @@ export default function CitizenHome() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          SECTION 7 — GOVERNMENT FOOTER
+          SECTION 7 - GOVERNMENT FOOTER
       ═══════════════════════════════════════════════════════════════════════ */}
       <footer style={s.footer}>
         <div style={s.footerTriColor}>
@@ -560,7 +564,7 @@ export default function CitizenHome() {
           <div style={s.footerGrid}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-                <img src="/ashoka-emblem.png" alt="Emblem" style={{ width: 40, height: 48, objectFit: 'contain', filter: 'brightness(0) invert(1) opacity(0.7)' }} />
+                <img src="/ashoka-emblem.png" alt="Emblem" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
                 <div>
                   <div style={s.footerBrand}>PS-CRM <span style={{ color: '#FF9933' }}>Gov Portal</span></div>
                   <div style={s.footerBrandSub}>{lang === 'hi' ? 'स्मार्ट सार्वजनिक सेवा CRM' : 'Smart Public Service CRM'}</div>
@@ -594,7 +598,7 @@ export default function CitizenHome() {
             <div>
               <div style={s.footerHeading}>{lang === 'hi' ? 'कानूनी' : 'Legal & Compliance'}</div>
               {[
-                'RTI — Right to Information',
+                'RTI - Right to Information',
                 'Citizen Charter',
                 'Accessibility Statement',
                 'Data Privacy Policy',
@@ -618,7 +622,7 @@ export default function CitizenHome() {
           </div>
 
           <div style={s.footerBottom}>
-            <div>{lang === 'hi' ? '© 2026 दिल्ली राष्ट्रीय राजधानी क्षेत्र सरकार — स्मार्ट सार्वजनिक सेवा CRM। सर्वाधिकार सुरक्षित।' : '© 2026 Government of NCT of Delhi — Smart Public Service CRM. All rights reserved.'}</div>
+            <div>{lang === 'hi' ? '© 2026 दिल्ली राष्ट्रीय राजधानी क्षेत्र सरकार - स्मार्ट सार्वजनिक सेवा CRM। सर्वाधिकार सुरक्षित।' : '© 2026 Government of NCT of Delhi - Smart Public Service CRM. All rights reserved.'}</div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>
               {lang === 'hi' ? 'राष्ट्रीय सूचना विज्ञान केंद्र (NIC) द्वारा डिज़ाइन एवं विकसित' : 'Designed & Developed by National Informatics Centre (NIC)'}
             </div>
@@ -732,7 +736,7 @@ const s = {
   counterCard:  { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '26px 20px', textAlign: 'center', backdropFilter: 'blur(8px)' },
   counterIcon:  { width: 50, height: 50, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' },
   counterValue: { fontSize: 32, fontWeight: 700, marginBottom: 6, letterSpacing: '-0.5px' },
-  counterLabel: { fontSize: 11, color: 'rgba(255,255,255,0.5)', fontWeight: 500, marginBottom: 14 },
+  counterLabel: { fontSize: 11, color: '#ffffff', fontWeight: 500, marginBottom: 14 },
   progressWrap: { width: '100%', height: 4, borderRadius: 100, background: 'rgba(255,255,255,0.08)', overflow: 'hidden' },
   progressBar:  { height: '100%', borderRadius: 100, transition: 'width 1.8s ease-out' },
 

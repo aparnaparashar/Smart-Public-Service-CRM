@@ -281,7 +281,7 @@ export default function ComplaintHeatmap() {
       {/* Header */}
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>Complaint Heatmap — Delhi</h2>
+          <h2 style={S.title}>Complaint Heatmap - Delhi</h2>
           <p style={S.subtitle}>Locality-wise complaint density and urgency</p>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'12px', flexWrap:'wrap' }}>
@@ -299,11 +299,11 @@ export default function ComplaintHeatmap() {
       {heatmapData && (
         <div style={S.pills}>
           {[
-            { label:'Total Complaints', value: heatmapData.summary.totalComplaints, color:'#1a56db' },
-            { label:'Resolved',         value: heatmapData.summary.totalResolved,   color:'#16a34a' },
-            { label:'Escalated',        value: heatmapData.summary.totalEscalated,  color:'#dc2626' },
-            { label:'Active Areas',     value: heatmapData.summary.activeWards,     color:'#7c3aed' },
-            { label:'Resolution Rate',  value:`${heatmapData.summary.resolutionRate}%`, color:'#0891b2' },
+            { label:'Total Complaints', value: heatmapData.summary.totalComplaints, color:'#103791' },
+            { label:'Resolved',         value: heatmapData.summary.totalResolved,   color:'#103791' },
+            { label:'Escalated',        value: heatmapData.summary.totalEscalated,  color:'#103791' },
+            { label:'Active Areas',     value: heatmapData.summary.activeWards,     color:'#103791' },
+            { label:'Resolution Rate',  value:`${heatmapData.summary.resolutionRate}%`, color:'#103791' },
           ].map(p => (
             <div key={p.label} style={S.pill}>
               <span style={{ fontSize:'22px', fontWeight:700, color:p.color, lineHeight:1 }}>{p.value}</span>

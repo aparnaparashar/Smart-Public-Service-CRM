@@ -38,10 +38,10 @@ app.use('/api/heatmap', heatmapRoutes);
 
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-// const { startWhatsAppBot } = require('./src/config/whatsappBot');
+const { startWhatsAppBot } = require('./src/config/whatsappBot');
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   startSLAService();
-  // startWhatsAppBot();  // Disabled as per user request
+  startWhatsAppBot();  // WhatsApp bot enabled with QR code
 });

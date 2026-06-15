@@ -24,10 +24,10 @@ export default function Contact() {
   };
 
   const helplineCards = [
-    { icon: '📞', title: lang === 'hi' ? 'टोल-फ्री हेल्पलाइन' : 'Toll-Free Helpline', number: '1800-111-555', desc: lang === 'hi' ? '24/7 शिकायत पंजीकरण और पूछताछ' : '24/7 grievance registration and inquiry' },
-    { icon: '🏛️', title: lang === 'hi' ? 'दिल्ली सचिवालय' : 'Delhi Secretariat', number: '011-23392020', desc: lang === 'hi' ? 'सामान्य प्रशासनिक पूछताछ' : 'General administrative inquiry' },
-    { icon: '📱', title: lang === 'hi' ? 'डोरस्टेप डिलीवरी' : 'Doorstep Delivery', number: '1076', desc: lang === 'hi' ? 'सरकारी सेवाओं की डोरस्टेप डिलीवरी हेल्पलाइन' : 'Doorstep delivery of government services' },
-    { icon: '🛡️', title: lang === 'hi' ? 'एंटी-करप्शन हेल्पलाइन' : 'Anti-Corruption Helpline', number: '1031', desc: lang === 'hi' ? 'भ्रष्टाचार से संबंधित शिकायतें दर्ज करें' : 'File complaints related to corruption' }
+    { title: lang === 'hi' ? 'टोल-फ्री हेल्पलाइन' : 'Toll-Free Helpline', number: '1800-111-555', desc: lang === 'hi' ? '24/7 शिकायत पंजीकरण और पूछताछ' : '24/7 grievance registration and inquiry' },
+    { title: lang === 'hi' ? 'दिल्ली सचिवालय' : 'Delhi Secretariat', number: '011-23392020', desc: lang === 'hi' ? 'सामान्य प्रशासनिक पूछताछ' : 'General administrative inquiry' },
+    { title: lang === 'hi' ? 'डोरस्टेप डिलीवरी' : 'Doorstep Delivery', number: '1076', desc: lang === 'hi' ? 'सरकारी सेवाओं की डोरस्टेप डिलीवरी हेल्पलाइन' : 'Doorstep delivery of government services' },
+    { title: lang === 'hi' ? 'एंटी-करप्शन हेल्पलाइन' : 'Anti-Corruption Helpline', number: '1031', desc: lang === 'hi' ? 'भ्रष्टाचार से संबंधित शिकायतें दर्ज करें' : 'File complaints related to corruption' }
   ];
 
   const officialDirectory = [
@@ -59,7 +59,6 @@ export default function Contact() {
         <div style={styles.helplineGrid}>
           {helplineCards.map((h, i) => (
             <div key={i} style={styles.helplineCard}>
-              <div style={styles.helplineIcon}>{h.icon}</div>
               <div style={styles.helplineTitle}>{h.title}</div>
               <div style={styles.helplineNumber}>{h.number}</div>
               <div style={styles.helplineDesc}>{h.desc}</div>
@@ -78,7 +77,7 @@ export default function Contact() {
 
             {submitted ? (
               <div style={styles.successWrapper}>
-                <div style={{ fontSize: 60, marginBottom: 12 }}>✉️</div>
+
                 <h3 style={styles.successTitle}>{lang === 'hi' ? 'संदेश सफलतापूर्वक भेजा गया!' : 'Message Sent Successfully!'}</h3>
                 <p style={styles.successText}>
                   {lang === 'hi' 
@@ -146,7 +145,6 @@ export default function Contact() {
             </div>
 
             <div style={styles.addressBlock}>
-              <div style={styles.addressIcon}>📍</div>
               <div>
                 <div style={styles.addressTitle}>{lang === 'hi' ? 'दिल्ली सचिवालय (मुख्य मुख्यालय)' : 'Delhi Secretariat (Main HQ)'}</div>
                 <div style={styles.addressText}>
@@ -159,16 +157,15 @@ export default function Contact() {
 
             {/* Embedded Mock Map Grid */}
             <div style={styles.mapContainer}>
-              <div style={styles.mapBanner}>{lang === 'hi' ? '🗺️ दिल्ली सचिवालय मानचित्र' : '🗺️ Delhi Secretariat Map'}</div>
+              <div style={styles.mapBanner}>{lang === 'hi' ? 'दिल्ली सचिवालय मानचित्र' : 'Delhi Secretariat Map'}</div>
               <div style={styles.mapContent}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1A237E' }}>IP Estate, Ring Road, New Delhi</div>
                 <div style={{ fontSize: 11, color: '#6B7FA3', marginTop: 4 }}>Lat: 28.6295° N | Lng: 77.2476° E</div>
-                <div style={styles.mapMarker}>📍 HQ</div>
+                <div style={styles.mapMarker}>HQ</div>
               </div>
             </div>
 
             <div style={{ ...styles.addressBlock, marginTop: 20 }}>
-              <div style={styles.addressIcon}>📧</div>
               <div>
                 <div style={styles.addressTitle}>{lang === 'hi' ? 'सामान्य ईमेल पूछताछ' : 'General Email Queries'}</div>
                 <div style={styles.addressText}>gov.grievance.system@gmail.com</div>

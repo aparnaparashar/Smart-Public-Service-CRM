@@ -331,7 +331,7 @@ export default function ComplaintsList() {
                       <select style={{ ...styles.actionSelect, borderColor: c.assignedTo ? '#16A34A' : '#D8E2F0', color: c.assignedTo ? '#16A34A' : '#6B7FA3', opacity: assigning === c._id ? 0.5 : 1, minWidth: 140 }}
                         value={c.assignedTo || ''} disabled={assigning === c._id}
                         onChange={e => assignOfficer(c._id, e.target.value)}>
-                        <option value=''>— Unassigned —</option>
+                        <option value=''>- Unassigned -</option>
                         {officers.map(o => <option key={o._id} value={o._id}>{o.name}</option>)}
                       </select>
                     </td>

@@ -250,7 +250,7 @@ export default function Register() {
   return (
     <div style={styles.container}>
 
-      {/* Left Panel — identical to original */}
+      {/* Left Panel - identical to original */}
       <div style={styles.left}>
         <div style={styles.leftInner}>
           <div style={styles.leftLogo} onClick={() => navigate('/')}>
@@ -294,7 +294,7 @@ export default function Register() {
         <div style={styles.form}>
 
           {/* ══════════════════════════════════════════════════════════
-              STEP 1 — Registration form (identical to original)
+              STEP 1 - Registration form (identical to original)
           ══════════════════════════════════════════════════════════ */}
           {step === 'form' && (
             <>
@@ -329,7 +329,7 @@ export default function Register() {
 
               <p style={styles.formSub}>
                 {registerType === 'officer'
-                  ? (lang === 'hi' ? 'अधिकारी खाता बनाएं — एडमिन अनुमोदन आवश्यक' : 'Create officer account — admin approval required')
+                  ? (lang === 'hi' ? 'अधिकारी खाता बनाएं - एडमिन अनुमोदन आवश्यक' : 'Create officer account - admin approval required')
                   : tx('Register as a citizen to access the portal', lang)}
               </p>
 
@@ -447,7 +447,7 @@ export default function Register() {
           )}
 
           {/* ══════════════════════════════════════════════════════════
-              STEP 2 — OTP Verification  ← NEW
+              STEP 2 - OTP Verification  <- NEW
           ══════════════════════════════════════════════════════════ */}
           {step === 'otp' && (
             <>
@@ -515,7 +515,7 @@ export default function Register() {
   );
 }
 
-// ── Styles — identical to your original ──────────────────────────────────────
+// -- Styles - identical to your original --────────────────────────────────────
 const styles = {
   container:     { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif", position: 'relative' },
   left:          { flex: 1, backgroundImage: "linear-gradient(135deg, rgba(15,37,87,0.88) 0%, rgba(26,58,110,0.6) 60%), url('/delhi-hero.png')", backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },

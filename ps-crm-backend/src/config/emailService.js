@@ -10,16 +10,29 @@ const getTransporter = () => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    tls: { rejectUnauthorized: false },
+    tls: { 
+      rejectUnauthorized: false 
+    },
+    connectionTimeout: 5000,
+    socketTimeout: 5000,
   });
 };
 
 const testEmail = async () => {
   try {
+    console.log('[Email] Testing SMTP connection with credentials:');
+    console.log(`[Email] User: ${process.env.EMAIL_USER}`);
+    console.log(`[Email] Pass: ${process.env.EMAIL_PASS ? '***configured***' : '❌ MISSING'}`);
+    
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.error('[Email] ❌ ERROR: EMAIL_USER or EMAIL_PASS not configured in .env file');
+      return;
+    }
+    
     await getTransporter().verify();
-    console.log('[Email] Connection verified successfully');
+    console.log('[Email] ✅ Connection verified successfully');
   } catch (error) {
-    console.error('[Email] Connection failed:', error.message);
+    console.error('[Email] ❌ Connection failed:', error.message);
   }
 };
 testEmail();
@@ -380,6 +393,11 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const sendOTPEmail = async (email, otp, name = '') => {
   try {
+    // Validate email credentials first
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error('Email credentials (EMAIL_USER or EMAIL_PASS) are not configured in .env file');
+    }
+
     const body = `
       <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
       <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
@@ -399,15 +417,19 @@ const sendOTPEmail = async (email, otp, name = '') => {
       </div>
       <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
 
-    await getTransporter().sendMail({
+    const mailOptions = {
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      email,
       subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
       html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
-    });
-    console.log(`[Email] OTP sent to ${email}`);
+    };
+
+    console.log(`[Email] Attempting to send OTP to ${email}`);
+    const info = await getTransporter().sendMail(mailOptions);
+    console.log(`[Email] OTP sent successfully to ${email}. Message ID: ${info.messageId}`);
   } catch (error) {
-    console.error('[Email Error] OTP:', error.message);
+    console.error('[Email Error] OTP sending failed:', error.message);
+    console.error('[Email Error] Stack:', error.stack);
     throw error;
   }
 };

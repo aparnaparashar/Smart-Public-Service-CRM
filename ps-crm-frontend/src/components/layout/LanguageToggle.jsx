@@ -19,17 +19,16 @@ const btnStyle = {
   display: 'flex',
   alignItems: 'center',
   gap: 6,
-  padding: '7px 14px',
-  borderRadius: 20,
-  border: '1.5px solid rgba(255,255,255,0.35)',
-  background: 'rgba(255,255,255,0.12)',
+  padding: '8px 14px',
+  borderRadius: 6,
+  border: 'none',
+  background: '#0F2557',
   color: '#fff',
   fontSize: 13,
   fontWeight: 700,
   cursor: 'pointer',
   fontFamily: "'DM Sans', sans-serif",
   transition: 'all 0.2s',
-  backdropFilter: 'blur(4px)',
 };
 
 const flagStyle = { fontSize: 16, lineHeight: 1 };

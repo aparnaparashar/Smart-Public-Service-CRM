@@ -35,28 +35,6 @@ export default function HeaderNavbar({ activeTab }) {
         .nav-link-btn:hover { background: rgba(255,255,255,0.08) !important; }
       `}</style>
 
-      {/* TOP GOVERNMENT BAR */}
-      <div style={styles.topBar}>
-        <div style={styles.topBarLeft}>
-          <div style={styles.triColor}>
-            <div style={{ width: 4, height: 14, background: '#FF9933', borderRadius: '2px 2px 0 0' }} />
-            <div style={{ width: 4, height: 14, background: '#FFFFFF' }} />
-            <div style={{ width: 4, height: 14, background: '#138808', borderRadius: '0 0 2px 2px' }} />
-          </div>
-          <span style={styles.topBarText}>
-            {lang === 'hi' ? 'दिल्ली राष्ट्रीय राजधानी क्षेत्र सरकार · लोक शिकायत निवारण पोर्टल' : 'Government of NCT of Delhi · Public Grievance Redressal Portal'}
-          </span>
-        </div>
-        <div style={styles.topBarRight}>
-          <span style={styles.topBarLink}>Screen Reader</span>
-          <span style={styles.topBarLink}>A-</span>
-          <span style={styles.topBarLink}>A</span>
-          <span style={styles.topBarLink}>A+</span>
-          <span style={styles.topBarDivider}>|</span>
-          <LanguageToggle />
-        </div>
-      </div>
-
       {/* MAIN HEADER */}
       <header style={styles.header}>
         <div style={{ ...styles.headerLeft, cursor: 'pointer' }} onClick={() => navigate(user ? '/citizen/home' : '/')}>
@@ -78,6 +56,8 @@ export default function HeaderNavbar({ activeTab }) {
             </div>
             <div style={{ width: 48, height: 10, background: '#138808', borderRadius: '0 0 3px 3px' }} />
           </div>
+
+          <LanguageToggle />
 
           {user ? (
             <>
@@ -138,13 +118,6 @@ export default function HeaderNavbar({ activeTab }) {
 }
 
 const styles = {
-  topBar:      { background: '#1A237E', height: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '2px solid #FF9933', fontFamily: "'DM Sans', sans-serif" },
-  topBarLeft:  { display: 'flex', alignItems: 'center', gap: 12 },
-  triColor:    { display: 'flex', flexDirection: 'column', gap: 0 },
-  topBarText:  { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500, letterSpacing: 0.3 },
-  topBarRight: { display: 'flex', alignItems: 'center', gap: 12 },
-  topBarLink:  { fontSize: 11, color: 'rgba(255,255,255,0.55)', cursor: 'pointer' },
-  topBarDivider: { color: 'rgba(255,255,255,0.2)', fontSize: 14 },
   header:       { background: '#fff', padding: '16px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #E8ECF0', boxShadow: '0 1px 4px rgba(0,0,0,0.04)', fontFamily: "'DM Sans', sans-serif" },
   headerLeft:   { display: 'flex', alignItems: 'center', gap: 16 },
   emblemImg:    { width: 52, height: 62, objectFit: 'contain' },
@@ -159,6 +132,6 @@ const styles = {
   logoutBtn:    { padding: '8px 18px', borderRadius: 8, border: '1.5px solid #DC2626', background: 'transparent', color: '#DC2626', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif" },
   loginBtn:     { padding: '10px 22px', borderRadius: 8, border: 'none', background: '#E8620A', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", boxShadow: '0 2px 8px rgba(232,98,10,0.2)' },
   navBar:       { background: '#1565C0', position: 'sticky', top: 0, zIndex: 200, fontFamily: "'DM Sans', sans-serif" },
-  navInner:     { maxWidth: 1240, margin: '0 auto', padding: '0 40px', display: 'flex', gap: 0 },
-  navLink:      { padding: '14px 20px', border: 'none', background: 'transparent', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", borderRight: '1px solid rgba(255,255,255,0.12)', letterSpacing: 0.2, height: '100%', boxSizing: 'border-box' },
+  navInner:     { maxWidth: 1240, margin: '0 auto', padding: '0 40px', display: 'flex', gap: 0, alignItems: 'center', height: 56 },
+  navLink:      { padding: '0 20px', border: 'none', background: 'transparent', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'DM Sans',sans-serif", borderRight: '1px solid rgba(255,255,255,0.12)', letterSpacing: 0.2, height: '100%', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'nowrap' },
 };

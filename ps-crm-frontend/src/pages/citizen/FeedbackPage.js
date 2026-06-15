@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLang, tx } from '../../context/LanguageContext';
 import API from '../../api';
 import HeaderNavbar from '../../components/layout/HeaderNavbar';
+import LanguageToggle from '../../components/layout/LanguageToggle';
 
 // ── Platform Ratings  ─────────────────────────────────────────────
 function PlatformRatings({ lang }) {

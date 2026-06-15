@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useLang, tx } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
 import HeaderNavbar from '../../components/layout/HeaderNavbar';
 import ComplaintHeatmap from '../../components/ui/ComplaintHeatmap';
 import { WARD_ZONE_MAP } from '../../data/wardInfo';
 
-const COLORS = ['#0F2557', '#E8620A', '#1B7A3E', '#1565C0', '#8B5CF6', '#DB2777'];
+const COLORS = ['#FF9933', '#0F2557', '#138808'];
 
 export default function PublicDashboard() {
   const navigate = useNavigate();
   const { lang } = useLang();
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -175,10 +177,10 @@ export default function PublicDashboard() {
               <>
                 <div style={styles.cardsRow}>
                   {[
-                    { label: tx('Total Complaints', lang), value: stats.total,      color: '#0F2557', bg: '#EEF2FF', pct: 100 },
-                    { label: tx('Pending', lang),           value: stats.pending,    color: '#D97706', bg: '#FEF3C7', pct: stats.total ? ((stats.pending    / stats.total) * 100).toFixed(0) : 0 },
-                    { label: tx('In Progress', lang),       value: stats.inProgress, color: '#2563EB', bg: '#DBEAFE', pct: stats.total ? ((stats.inProgress / stats.total) * 100).toFixed(0) : 0 },
-                    { label: tx('Resolved', lang),           value: stats.resolved,   color: '#16A34A', bg: '#DCFCE7', pct: stats.total ? ((stats.resolved   / stats.total) * 100).toFixed(0) : 0 },
+                    { label: tx('Total Complaints', lang), value: stats.total,      color: '#FF9933', bg: '#FFEAA7', pct: 100 },
+                    { label: tx('Pending', lang),           value: stats.pending,    color: '#0F2557', bg: '#E3F2FD', pct: stats.total ? ((stats.pending    / stats.total) * 100).toFixed(0) : 0 },
+                    { label: tx('In Progress', lang),       value: stats.inProgress, color: '#138808', bg: '#E8F5E9', pct: stats.total ? ((stats.inProgress / stats.total) * 100).toFixed(0) : 0 },
+                    { label: tx('Resolved', lang),           value: stats.resolved,   color: '#FF9933', bg: '#FFEAA7', pct: stats.total ? ((stats.resolved   / stats.total) * 100).toFixed(0) : 0 },
                   ].map((c, i) => (
                     <div key={i} style={{ ...styles.statCard, borderTop: `4px solid ${c.color}` }}>
                       <div style={{ ...styles.statValue, color: c.color }}>{c.value}</div>
@@ -240,7 +242,7 @@ export default function PublicDashboard() {
                       { label: tx('Escalation Rate', lang),      value: stats.escalatedRate != null ? `${stats.escalatedRate}%` : '0%', good: false },
                     ].map((m, i) => (
                       <div key={i} style={styles.metricCard}>
-                        <div style={{ ...styles.metricValue, color: m.good ? '#16A34A' : '#DC2626' }}>{m.value}</div>
+                        <div style={{ ...styles.metricValue, color: '#103791' }}>{m.value}</div>
                         <div style={styles.metricLabel}>{m.label}</div>
                         <div style={{ marginTop: 12, padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 700, background: m.good ? '#DCFCE7' : '#FEE2E2', color: m.good ? '#16A34A' : '#DC2626', display: 'inline-block' }}>
                           {m.good ? tx('Good', lang) : tx('Monitor', lang)}
@@ -292,10 +294,10 @@ export default function PublicDashboard() {
                 {/* Summary Cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
                   {[
-                    { label: 'Total Wards',      value: 250,                                                                       color: '#0F2557' },
-                    { label: 'Active Wards',     value: activeWards.length,                                                       color: '#DC2626' },
-                    { label: 'Highest Complaints', value: activeWards[0]?.ward || 'N/A',                                          color: '#D97706' },
-                    { label: 'Total Ward Cases',  value: totalWardComplaints,                                                      color: '#16A34A' },
+                    { label: 'Total Wards',      value: 250,                                                                       color: '#FF9933' },
+                    { label: 'Active Wards',     value: activeWards.length,                                                       color: '#0F2557' },
+                    { label: 'Highest Complaints', value: activeWards[0]?.ward || 'N/A',                                          color: '#138808' },
+                    { label: 'Total Ward Cases',  value: totalWardComplaints,                                                      color: '#FF9933' },
                   ].map((s, i) => (
                     <div key={i} style={{ ...styles.statCard, borderTop: `4px solid ${s.color}` }}>
                       <div style={{ ...styles.statValue, color: s.color }}>{s.value}</div>
@@ -327,7 +329,7 @@ export default function PublicDashboard() {
                         <Bar dataKey="complaints" radius={[0, 6, 6, 0]}>
                           {wardData.filter(w => w.complaints > 0).map((w, i) => {
                             const intensity = w.complaints / maxCount;
-                            const color = intensity > 0.8 ? '#7F1D1D' : intensity > 0.6 ? '#EF4444' : intensity > 0.4 ? '#F59E0B' : intensity > 0.2 ? '#1565C0' : '#0F2557';
+                            const color = intensity > 0.6 ? '#138808' : intensity > 0.3 ? '#0F2557' : '#FF9933';
                             return <Cell key={i} fill={color} />;
                           })}
                         </Bar>
@@ -464,7 +466,7 @@ export default function PublicDashboard() {
         <div style={{ maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 20 }}>
           <div>
             <div style={{ fontFamily: "'Noto Serif',serif", fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
-              {tx('Have a grievance? File it now — no login needed to track.', lang)}
+              {tx('Have a grievance? File it now - no login needed to track.', lang)}
             </div>
             <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)' }}>
               {tx('Join thousands of citizens who resolved their complaints through PS-CRM', lang)}
@@ -479,47 +481,78 @@ export default function PublicDashboard() {
 
       {/* Footer */}
       <footer style={styles.footer}>
-        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 40, marginBottom: 32 }}>
-            <div>
-              <div style={{ fontWeight: 700, color: '#0F2557', fontSize: 16, marginBottom: 10 }}>🏛️ {tx('PS-CRM Gov Portal', lang)}</div>
-              <div style={{ fontSize: 13, color: '#6B7FA3', lineHeight: 1.7, marginBottom: 14 }}>
-                {tx('Smart Public Service CRM for centralized citizen grievance management powered by AI.', lang)}
-              </div>
+        <div style={styles.footerTriColor}>
+          <div style={{ flex: 1, height: 4, background: '#FF9933' }} />
+          <div style={{ flex: 1, height: 4, background: '#FFF' }} />
+          <div style={{ flex: 1, height: 4, background: '#138808' }} />
+        </div>
 
-            </div>
+        <div style={styles.footerInner}>
+          <div style={styles.footerGrid}>
             <div>
-              <div style={{ fontWeight: 700, color: '#0F2557', marginBottom: 14 }}>{tx('Quick Links', lang)}</div>
-              {[
-                { label: ` ${tx('Home', lang)}`,                            path: '/' },
-                { label: ` ${tx('File a Complaint', lang)}`,                path: '/citizen/submit' },
-                { label: ` ${tx('Track Your Complaint', lang)}`,            path: '/citizen/track' },
-                { label: ` ${tx('Public Dashboard', lang)}`,                path: '/public' },
-                { label: ` ${tx('Login', lang)} / ${tx('Register', lang)}`, path: '/login' },
-              ].map(l => (
-                <div key={l.path} style={{ fontSize: 13, color: '#6B7FA3', marginBottom: 8, cursor: 'pointer' }} onClick={() => navigate(l.path)}>
-                  {l.label}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                <img src="/ashoka-emblem.png" alt="Emblem" style={{ width: 48, height: 48, objectFit: 'contain', flexShrink: 0 }} />
+                <div>
+                  <div style={styles.footerBrand}>PS-CRM <span style={{ color: '#FF9933' }}>Gov Portal</span></div>
+                  <div style={styles.footerBrandSub}>{lang === 'hi' ? 'स्मार्ट सार्वजनिक सेवा CRM' : 'Smart Public Service CRM'}</div>
                 </div>
+              </div>
+              <p style={styles.footerDesc}>
+                {lang === 'hi' ? 'प्रौद्योगिकी के माध्यम से नागरिकों और दिल्ली सरकार के बीच विश्वास बनाना।' : 'Building trust between citizens and Government of Delhi through technology.'}
+              </p>
+            </div>
+
+            <div>
+              <div style={styles.footerHeading}>{lang === 'hi' ? 'त्वरित लिंक' : 'Quick Links'}</div>
+              {[
+                { l: lang === 'hi' ? 'शिकायत दर्ज करें' : 'File Complaint',    p: '/citizen/submit' },
+                { l: lang === 'hi' ? 'शिकायत ट्रैक करें' : 'Track Status',      p: '/citizen/track' },
+                { l: lang === 'hi' ? 'मेरा डैशबोर्ड' : 'My Dashboard',      p: '/citizen/dashboard' },
+                { l: lang === 'hi' ? 'सार्वजनिक डैशबोर्ड' : 'Public Dashboard',  p: '/public' },
+                { l: lang === 'hi' ? 'सूचनाएं' : 'Notifications',     p: '/notifications' },
+              ].map(item => (
+                <div key={item.p} style={styles.footerLink} onClick={() => {
+                  if (item.p === '/citizen/submit' || item.p === '/citizen/dashboard' || item.p === '/notifications') {
+                    if (!user) navigate('/login');
+                    else navigate(item.p);
+                  } else {
+                    navigate(item.p);
+                  }
+                }}>{item.l}</div>
               ))}
             </div>
+
             <div>
-              <div style={{ fontWeight: 700, color: '#0F2557', marginBottom: 14 }}>{tx('Track Without Login', lang)}</div>
-              <div style={{ fontSize: 13, color: '#6B7FA3', lineHeight: 1.7, marginBottom: 16 }}>
-                {tx('Enter your complaint ID to see real-time status, photos, and progress report', lang)}
-              </div>
-              <button style={{ padding: '10px 20px', background: '#0F2557', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', width: '100%' }}
-                onClick={() => navigate('/citizen/track')}>
-                {tx(' Track a Complaint Now', lang)}
-              </button>
-              <div style={{ fontSize: 13, color: '#6B7FA3', lineHeight: 1.8, marginTop: 16 }}>
-                 gov.grievance.system@gmail.com<br />
-                 9594231594
+              <div style={styles.footerHeading}>{lang === 'hi' ? 'कानूनी' : 'Legal & Compliance'}</div>
+              {[
+                'RTI - Right to Information',
+                'Citizen Charter',
+                'Accessibility Statement',
+                'Data Privacy Policy',
+                'Terms of Service',
+              ].map((item, i) => (
+                <div key={i} style={styles.footerLink}>{item}</div>
+              ))}
+            </div>
+
+            <div>
+              <div style={styles.footerHeading}>{lang === 'hi' ? 'संपर्क करें' : 'Contact Us'}</div>
+              <div style={styles.footerContact}>Email: grievance@pscrm.gov.in</div>
+              <div style={styles.footerContact}>Toll Free: 1800-111-555 ({lang === 'hi' ? 'निःशुल्क' : 'Toll Free'})</div>
+              <div style={styles.footerContact}>Address: {lang === 'hi' ? 'दिल्ली सचिवालय, आई.पी. एस्टेट' : 'Delhi Secretariat, I.P. Estate'}</div>
+              <div style={{ marginTop: 16 }}>
+                <div style={styles.footerHeading}>{lang === 'hi' ? 'सरकारी निकाय' : 'Government Bodies'}</div>
+                <div style={styles.footerContact}>{lang === 'hi' ? 'राष्ट्रीय सूचना विज्ञान केंद्र (NIC)' : 'National Informatics Centre (NIC)'}</div>
+                <div style={styles.footerContact}>{lang === 'hi' ? 'कार्मल मंत्रालय' : 'Ministry of Personnel & PG'}</div>
               </div>
             </div>
           </div>
-          <div style={{ borderTop: '1px solid #D8E2F0', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <div style={{ fontSize: 12, color: '#6B7FA3' }}>{tx('© 2025 PS-CRM · Public Transparency Dashboard · Government of Delhi', lang)}</div>
-            <div style={{ fontSize: 12, color: '#6B7FA3' }}>{tx('Privacy Policy · Terms of Use · Accessibility', lang)}</div>
+
+          <div style={styles.footerBottom}>
+            <div>{lang === 'hi' ? '© 2026 दिल्ली राष्ट्रीय राजधानी क्षेत्र सरकार - स्मार्ट सार्वजनिक सेवा CRM। सर्वाधिकार सुरक्षित।' : '© 2026 Government of NCT of Delhi - Smart Public Service CRM. All rights reserved.'}</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 4 }}>
+              {lang === 'hi' ? 'राष्ट्रीय सूचना विज्ञान केंद्र (NIC) द्वारा डिज़ाइन एवं विकसित' : 'Designed & Developed by National Informatics Centre (NIC)'}
+            </div>
           </div>
         </div>
       </footer>
@@ -575,5 +608,15 @@ const styles = {
   ctaBanner:           { background: 'linear-gradient(135deg,#0F2557,#1565C0)', padding: '40px 40px' },
   ctaBtn:              { padding: '12px 24px', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer', border: 'none', background: '#E8620A', color: '#fff' },
   ctaBtnSec:           { padding: '12px 24px', borderRadius: 9, fontSize: 14, fontWeight: 600, cursor: 'pointer', background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1.5px solid rgba(255,255,255,0.3)' },
-  footer:              { background: '#fff', borderTop: '1px solid #D8E2F0', padding: '40px 40px 24px' },
+  footer:              { background: '#0D1642' },
+  footerTriColor:      { display: 'flex' },
+  footerInner:         { maxWidth: 1240, margin: '0 auto', padding: '0 40px' },
+  footerGrid:          { display: 'grid', gridTemplateColumns: '1.4fr 1fr 1fr 1.2fr', gap: 36, padding: '44px 0 36px' },
+  footerBrand:         { fontFamily: "'Noto Serif', serif", fontSize: 17, fontWeight: 700, color: '#fff' },
+  footerBrandSub:      { fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 2 },
+  footerDesc:          { fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7 },
+  footerHeading:       { fontWeight: 700, color: '#fff', fontSize: 13, marginBottom: 14, letterSpacing: 0.5, textTransform: 'uppercase' },
+  footerLink:          { fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 10, cursor: 'pointer', lineHeight: 1.4 },
+  footerContact:       { fontSize: 13, color: 'rgba(255,255,255,0.45)', marginBottom: 8, lineHeight: 1.4 },
+  footerBottom:        { borderTop: '1px solid rgba(255,255,255,0.08)', padding: '20px 0', textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)' },
 };
