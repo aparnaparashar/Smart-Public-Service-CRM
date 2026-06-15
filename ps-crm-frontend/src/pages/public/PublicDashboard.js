@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useLang, tx } from '../../context/LanguageContext';
-import LanguageToggle from '../../components/layout/LanguageToggle';
+import API from '../../api';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 import ComplaintHeatmap from '../../components/ui/ComplaintHeatmap';
 import { WARD_ZONE_MAP } from '../../data/wardInfo';
 
@@ -22,13 +23,10 @@ export default function PublicDashboard() {
 
     const fetchStats = () => {
       setLoading(true);
-      fetch('http://localhost:5000/api/dashboard/public')
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            setStats(data.data);
-            setLastUpdated(new Date());
-          }
+      API.get('/dashboard/public')
+        .then(res => {
+          setStats(res.data.data);
+          setLastUpdated(new Date());
           setLoading(false);
         })
         .catch(() => {
@@ -75,47 +73,7 @@ export default function PublicDashboard() {
 
   return (
     <div style={styles.page}>
-      {/* Top Bar */}
-      <div style={styles.topbar}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ display: 'flex', gap: 2 }}>
-            {['#FF9933', '#FFF', '#138808'].map(c => (
-              <div key={c} style={{ width: 4, height: 14, borderRadius: 1, background: c }} />
-            ))}
-          </div>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)' }}>
-            {tx('Government of Delhi · Public Transparency Dashboard', lang)}
-          </span>
-        </div>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)' }}>
-          {tx('Last updated', lang)}: {lastUpdated ? lastUpdated.toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') : tx('Loading...', lang)}
-        </span>
-      </div>
-
-      {/* Header */}
-      <header style={styles.header}>
-        <div style={styles.brand} onClick={() => navigate('/')}>
-          <div style={styles.emblem}>🏛️</div>
-          <div>
-            <div style={styles.brandMain}>{tx('PS-CRM Public Dashboard', lang)}</div>
-            <div style={styles.brandSub}>{tx('Transparency & Accountability Portal', lang)}</div>
-          </div>
-        </div>
-        <nav style={{ display: 'flex', gap: 4 }}>
-          {tabKeys.map((t, i) => (
-            <button key={t} onClick={() => setActiveTab(t)}
-              style={{ ...styles.tabBtn, ...(activeTab === t ? styles.tabBtnActive : {}) }}>
-              {tx(tabLabels[i], lang)}
-            </button>
-          ))}
-        </nav>
-        <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-          <button style={styles.btnOutline} onClick={() => window.history.back()}>{'<'} {tx('Back', lang)}</button>
-          <LanguageToggle style={{ border: '1.5px solid #0F2557', background: 'rgba(15,37,87,0.08)', color: '#0F2557' }} />
-          <button style={styles.btnOutline} onClick={() => navigate('/citizen/track')}> {tx('Track', lang)}</button>
-          <button style={styles.btnOutline} onClick={() => navigate('/')}> {tx('Home', lang)}</button>
-        </div>
-      </header>
+      <HeaderNavbar activeTab="public" />
 
       {/* Hero Banner */}
       <div style={styles.heroBanner}>
@@ -172,6 +130,32 @@ export default function PublicDashboard() {
       </div>
 
       <div style={styles.container}>
+        {/* Sub-tab navigation */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid #D8E2F0', paddingBottom: 12, flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {tabKeys.map((t, i) => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                style={{
+                  ...styles.tabBtn,
+                  padding: '8px 16px',
+                  borderRadius: 8,
+                  fontSize: 13,
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeTab === t ? '#0F2557' : 'transparent',
+                  color: activeTab === t ? '#fff' : '#6B7FA3',
+                  transition: 'all 0.2s',
+                }}>
+                {tx(tabLabels[i], lang)}
+              </button>
+            ))}
+          </div>
+          <span style={{ fontSize: 12, color: '#6B7FA3', fontWeight: 500 }}>
+            {tx('Last updated', lang)}: {lastUpdated ? lastUpdated.toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') : tx('Loading...', lang)}
+          </span>
+        </div>
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: 80, color: '#6B7FA3' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}></div>

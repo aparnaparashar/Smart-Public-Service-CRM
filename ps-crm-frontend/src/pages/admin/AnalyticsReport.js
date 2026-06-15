@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
-import { Sidebar } from './ComplaintsList';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell,
   ResponsiveContainer, AreaChart, Area,
@@ -146,7 +146,7 @@ ${stats?.dailyTrend.map(d => `${d._id} : ${d.count} complaints`).join('\n')}
 
   return (
     <div style={styles.layout}>
-      <Sidebar navigate={navigate} logout={logout} user={user} active="analytics" />
+      <HeaderNavbar activeTab="analytics" />
 
       <div style={styles.main}>
         {/* Topbar */}
@@ -486,8 +486,8 @@ ${stats?.dailyTrend.map(d => `${d._id} : ${d.count} complaints`).join('\n')}
 }
 
 const styles = {
-  layout:      { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-  main:        { marginLeft: 260, flex: 1, padding: '32px', background: '#F4F6FB', minHeight: '100vh' },
+  layout:      { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
+  main:        { maxWidth: 1240, margin: '0 auto', padding: '40px 40px 60px', background: '#F4F6FB', minHeight: 'calc(100vh - 150px)', boxSizing: 'border-box' },
   topbar:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E8EEF8' },
   pageTitle:   { fontFamily: "'Noto Serif',serif", fontSize: 24, fontWeight: 700, color: '#0F2557' },
   pageSub:     { color: '#6B7FA3', fontSize: 13, marginTop: 4 },

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import API from '../../api';
-import LanguageToggle from '../../components/layout/LanguageToggle';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 
 export default function OfficerProfilePage() {
   const navigate = useNavigate();
@@ -104,49 +104,13 @@ export default function OfficerProfilePage() {
     setSaving(false);
   };
 
-  const langToggleStyle = {
-    padding: '7px 14px',
-    borderRadius: 8,
-    border: '1.5px solid #0F2557',
-    color: '#0F2557',
-    background: 'transparent',
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    fontFamily: "'DM Sans', sans-serif",
-  };
+
 
   return (
     <div style={styles.layout}>
-      <div style={styles.mainContent}>
-        {/* Header */}
-        <div style={{ background: '#0F2557', height: 34, display: 'flex', alignItems: 'center', padding: '0 40px', borderBottom: '3px solid #E8620A' }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)' }}>
-            {T('Government of Delhi · Ministry of Personnel, Public Grievances & Pensions')}
-          </span>
-        </div>
+      <HeaderNavbar />
 
-        <header style={{ background: '#fff', borderBottom: '1px solid #D8E2F0', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', boxShadow: '0 2px 12px rgba(15,37,87,0.08)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => navigate('/')}>
-            <div style={{ width: 40, height: 40, borderRadius: 9, background: 'linear-gradient(135deg,#0F2557,#1565C0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏛️</div>
-            <div>
-              <div style={{ fontFamily: "'Noto Serif', serif", fontSize: 16, fontWeight: 700, color: '#0F2557' }}>{T('PS-CRM Gov Portal')}</div>
-              <div style={{ fontSize: 11, color: '#6B7FA3' }}>{T('Smart Public Service CRM')}</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-            <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-              onClick={() => navigate(-1)}>{T('< Back')}</button>
-            <LanguageToggle style={langToggleStyle} />
-            <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-              onClick={() => navigate('/officer/dashboard')}>{T('🏠 Home')}</button>
-          </div>
-        </header>
-
-        <div style={styles.container}>
+      <div style={styles.container}>
           <div style={styles.pageHead}>
             <h1 style={styles.pageTitle}>{T('My Profile')}</h1>
             <p style={styles.pageSub}>{T('Manage your account information and security settings')}</p>
@@ -212,15 +176,13 @@ export default function OfficerProfilePage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
 
 const styles = {
-  layout: { display: 'flex', minHeight: '100vh', background: '#F4F6FB', fontFamily: "'DM Sans', sans-serif" },
-  mainContent: { flex: 1, display: 'flex', flexDirection: 'column' },
-  container: { flex: 1, maxWidth: 1100, margin: '0 auto', padding: '40px', width: '100%' },
+  layout: { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif" },
+  container: { maxWidth: 1100, margin: '0 auto', padding: '40px', width: '100%', boxSizing: 'border-box' },
   pageHead: { marginBottom: 28 },
   pageTitle: { fontFamily: "'Noto Serif', serif", fontSize: 26, fontWeight: 700, color: '#0F2557', marginBottom: 6 },
   pageSub: { color: '#6B7FA3', fontSize: 14 },

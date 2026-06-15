@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import { hasSensitiveWords, getSensitiveWordErrorMessage } from '../../utils/sensitiveWords';
-import LanguageToggle from '../../components/layout/LanguageToggle';
 import API from '../../api';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 import { WARD_ZONE_MAP, WARDS } from '../../data/wardInfo';
 
 const UGC = { High: '#E65100', Medium: '#1565C0', Low: '#1B7A3E' };
@@ -213,7 +213,7 @@ export default function SubmitComplaint() {
   if (success) {
     return (
       <div style={styles.page}>
-        <Header navigate={navigate} lang={lang} />
+        <HeaderNavbar activeTab="submit" />
         <div style={styles.successWrap}>
           <div style={styles.successCard}>
             <div style={{ fontSize: 56, marginBottom: 16 }}></div>
@@ -277,7 +277,7 @@ export default function SubmitComplaint() {
         }
       `}</style>
 
-      <Header navigate={navigate} lang={lang} />
+      <HeaderNavbar activeTab="submit" />
       <div style={styles.container}>
         <div style={styles.pageHead}>
           <h1 style={styles.pageTitle}>{tx(' File a Complaint', lang)}</h1>
@@ -577,50 +577,6 @@ export default function SubmitComplaint() {
   );
 }
 
-function Header({ navigate, lang }) {
-  const langToggleStyle = {
-    padding: '7px 14px',
-    borderRadius: 8,
-    border: '1.5px solid #0F2557',
-    color: '#0F2557',
-    background: 'transparent',
-    fontSize: 13,
-    fontWeight: 600,
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 6,
-    fontFamily: "'DM Sans', sans-serif"
-  };
-  
-  return (
-    <>
-      <div style={{ background: '#0F2557', height: 34, display: 'flex', alignItems: 'center', padding: '0 40px', borderBottom: '3px solid #E8620A' }}>
-        <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.75)' }}>
-          {tx('Government of Delhi · Ministry of Personnel, Public Grievances & Pensions', lang)}
-        </span>
-      </div>
-      <header style={{ background: '#fff', borderBottom: '1px solid #D8E2F0', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', boxShadow: '0 2px 12px rgba(15,37,87,0.08)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }} onClick={() => navigate('/')}>
-          <div style={{ width: 40, height: 40, borderRadius: 9, background: 'linear-gradient(135deg,#0F2557,#1565C0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🏛️</div>
-          <div>
-            <div style={{ fontFamily: "'Noto Serif', serif", fontSize: 16, fontWeight: 700, color: '#0F2557' }}>{tx('PS-CRM Gov Portal', lang)}</div>
-            <div style={{ fontSize: 11, color: '#6B7FA3' }}>{tx('Smart Public Service CRM', lang)}</div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: 9, alignItems: 'center' }}>
-          <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            onClick={() => navigate(-1)}>{tx('< Back', lang)}</button>
-          <LanguageToggle style={langToggleStyle} />
-          <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            onClick={() => navigate('/citizen/track-complaint')}>{tx('Track', lang)}</button>
-          <button style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
-            onClick={() => navigate('/citizen/dashboard')}>{tx('Home', lang)}</button>
-        </div>
-      </header>
-    </>
-  );
-}
 
 const styles = {
   page:          { fontFamily: "'DM Sans', sans-serif", background: '#F4F6FB', minHeight: '100vh' },

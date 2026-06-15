@@ -59,7 +59,7 @@ export default function Register() {
       }
 
       login(res.data.data);
-      navigate('/citizen/dashboard');
+      navigate('/citizen/home');
     } catch (err) {
       setError(err.response?.data?.message || (lang === 'hi' ? 'पंजीकरण विफल हुआ' : 'Registration failed'));
     }

@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Home from './pages/citizen/Home';
+import CitizenHome from './pages/citizen/CitizenHome';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ComplaintsList from './pages/admin/ComplaintsList';
 import OfficerManagement from './pages/admin/OfficerManagement';
@@ -17,6 +17,7 @@ import CitizenProfilePage from './pages/citizen/ProfilePage';
 import OfficerDashboard from './pages/officer/OfficerDashboard';
 import OfficerProfilePage from './pages/officer/ProfilePage';
 import PublicDashboard from './pages/public/PublicDashboard';
+import Contact from './pages/public/Contact';
 import Notifications from './pages/Notifications';
 import Chatbot from './components/ui/Chatbot';
 
@@ -35,14 +36,16 @@ function AppContent() {
     <>
       <Routes>
         {/* Public */}
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<CitizenHome />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/public" element={<PublicDashboard />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/citizen/track" element={<TrackComplaint />} />
         <Route path="/citizen/submit" element={<SubmitComplaint />} />
 
         {/* Citizen */}
+        <Route path="/citizen/home" element={<CitizenHome />} />
         <Route path="/citizen/dashboard" element={<ProtectedRoute roles={['citizen']}><CitizenDashboard /></ProtectedRoute>} />
         <Route path="/citizen/profile" element={<ProtectedRoute roles={['citizen']}><CitizenProfilePage /></ProtectedRoute>} />
         <Route path="/citizen/feedback/:id" element={<ProtectedRoute roles={['citizen']}><FeedbackPage /></ProtectedRoute>} />
