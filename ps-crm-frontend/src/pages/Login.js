@@ -289,7 +289,7 @@ export default function Login() {
 
 const styles = {
   container:      { display: 'flex', minHeight: '100vh', position: 'relative', fontFamily: "'DM Sans',sans-serif" },
-  left:           { flex: 1, background: 'linear-gradient(135deg,#0F2557 0%,#1A3A6E 50%,#1E5096 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
+  left:           { flex: 1, backgroundImage: "linear-gradient(135deg, rgba(15,37,87,0.88) 0%, rgba(26,58,110,0.6) 60%), url('/delhi-hero.png')", backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
   leftInner:      { maxWidth: 440 },
   leftLogo:       { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 48, cursor: 'pointer' },
   emblem:         { width: 50, height: 50, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 },
