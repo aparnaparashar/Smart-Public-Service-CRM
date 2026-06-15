@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useLang, tx } from '../context/LanguageContext.jsx';
 import LanguageToggle from '../components/layout/LanguageToggle';
 import API from '../api';
+import HeaderNavbar from '../components/layout/HeaderNavbar';
 
 // ── Time helper ───────────────────────────────────────────────────────────────
 function timeAgo(date, lang) {
@@ -178,78 +179,7 @@ export default function Notifications() {
 
   return (
     <div style={styles.page}>
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div style={styles.sidebarLogo} onClick={() => navigate('/')}>
-          <div style={styles.emblem}>🏛️</div>
-          <div>
-            <div style={styles.logoText}>{tx('PS-CRM', lang)}</div>
-            <div style={styles.logoSub}>{tx('Portal', lang)}</div>
-          </div>
-        </div>
-
-        <div style={styles.userCard}>
-          <div style={{
-            ...styles.userAvatar,
-            background: user?.role === 'admin' ? '#E8620A' : user?.role === 'officer' ? '#1565C0' : '#1B7A3E',
-          }}>
-            {user?.name?.charAt(0).toUpperCase()}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={styles.userName}>{user?.name}</div>
-            <div style={styles.userEmail}>{user?.email}</div>
-          </div>
-        </div>
-
-        <nav style={styles.nav}>
-          <div style={styles.navLabel}>{tx('MY ACCOUNT', lang)}</div>
-          {(() => {
-            const navLinks = [];
-            if (user?.role === 'citizen') {
-              navLinks.push(
-                { icon: '', label: tx('My Dashboard', lang),      path: '/citizen/dashboard' },
-                { icon: '', label: tx('File Complaint', lang),    path: '/citizen/submit' },
-                { icon: '', label: tx('Track Complaint', lang),   path: '/citizen/track' },
-                { icon: '', label: tx('My Profile', lang),        path: '/citizen/profile' },
-                { icon: '', label: tx('Public Dashboard', lang),  path: '/public' }
-              );
-            } else if (user?.role === 'officer') {
-              navLinks.push(
-                { icon: '', label: tx('My Dashboard', lang),      path: '/officer/dashboard' },
-                { icon: '', label: tx('All Cases', lang),         path: '/officer/dashboard' },
-                { icon: '', label: tx('My Profile', lang),        path: '/officer/profile' },
-                { icon: '', label: tx('Public Dashboard', lang),  path: '/public' }
-              );
-            } else if (user?.role === 'admin') {
-              navLinks.push(
-                { icon: '', label: tx('Dashboard', lang),         path: '/admin/dashboard' },
-                { icon: '', label: tx('All Complaints', lang),    path: '/admin/complaints' },
-                { icon: '', label: tx('Officers', lang),          path: '/admin/officers' },
-                { icon: '', label: tx('Analytics', lang),         path: '/admin/analytics' },
-                { icon: '', label: tx('My Profile', lang),        path: '/admin/profile' },
-                { icon: '', label: tx('Public Dashboard', lang),  path: '/public' }
-              );
-            }
-            navLinks.push({ icon: '', label: tx('Notifications', lang), path: '/notifications', active: true });
-            
-            return navLinks.map((l, i) => (
-              <div key={i} onClick={() => navigate(l.path)}
-                style={{ ...styles.navLink, ...(l.active ? styles.navLinkActive : {}) }}>
-                <span style={{ fontSize: 18 }}>{l.icon}</span>
-                <span>{l.label}</span>
-                {l.active && unread > 0 && <span style={styles.badge}>{unread}</span>}
-              </div>
-            ));
-          })()}
-        </nav>
-
-        <div style={styles.sidebarBottom}>
-          <div style={{ ...styles.navLink, color: 'rgba(255,255,255,0.4)' }} onClick={logout}>
-            <span style={{ fontSize: 18 }}></span>
-            <span>{tx('Logout', lang)}</span>
-          </div>
-        </div>
-      </div>
+      <HeaderNavbar activeTab="notifications" />
 
       {/* Main */}
       <div style={styles.main}>
@@ -356,24 +286,8 @@ export default function Notifications() {
 }
 
 const styles = {
-  page:            { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-  sidebar:         { width: 260, background: 'linear-gradient(180deg,#0F2557 0%,#16304F 100%)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100, overflowY: 'auto' },
-  sidebarLogo:     { padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' },
-  emblem:          { width: 42, height: 42, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 },
-  logoText:        { fontFamily: "'Noto Serif',serif", fontSize: 17, fontWeight: 700, color: '#fff' },
-  logoSub:         { fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 },
-  userCard:        { padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' },
-  userAvatar:      { width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 20, margin: '0 auto 10px' },
-  userName:        { color: '#fff', fontWeight: 700, fontSize: 14 },
-  userRole:        { color: 'rgba(255,255,255,0.5)', fontSize: 12, marginTop: 4 },
-  userEmail:       { color: 'rgba(255,255,255,0.6)', fontSize: 12, marginTop: 2 },
-  nav:             { padding: '20px 12px', flex: 1 },
-  navLabel:        { color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, padding: '0 12px', marginBottom: 8 },
-  navLink:         { display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', borderRadius: 8, marginBottom: 4, fontSize: 14 },
-  navLinkActive:   { color: '#fff', background: 'rgba(232,98,10,0.2)', borderLeft: '3px solid #E8620A' },
-  badge:           { marginLeft: 'auto', background: '#E8620A', color: '#fff', borderRadius: 20, padding: '2px 8px', fontSize: 11, fontWeight: 700 },
-  sidebarBottom:   { padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' },
-  main:            { marginLeft: 260, flex: 1, padding: '32px', background: '#F4F6FB', minHeight: '100vh' },
+  page:            { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
+  main:            { maxWidth: 1240, margin: '0 auto', padding: '40px 40px 60px', background: '#F4F6FB', minHeight: 'calc(100vh - 150px)', boxSizing: 'border-box' },
   topbar:          { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E8EEF8' },
   pageTitle:       { fontFamily: "'Noto Serif',serif", fontSize: 24, fontWeight: 700, color: '#0F2557' },
   pageSub:         { color: '#6B7FA3', fontSize: 13, marginTop: 4 },

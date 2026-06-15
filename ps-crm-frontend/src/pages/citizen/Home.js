@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import LanguageToggle from '../../components/layout/LanguageToggle';
+import API from '../../api';
 
 const faqs = {
   en: [
@@ -31,9 +32,8 @@ export default function Home() {
   const T = (key) => tx(key, lang);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/dashboard/public')
-      .then(res => res.json())
-      .then(data => { if (data.success) setRealStats(data.data); })
+    API.get('/dashboard/public')
+      .then(res => { if (res.data.success) setRealStats(res.data.data); })
       .catch(() => {});
   }, []);
 
@@ -41,7 +41,7 @@ export default function Home() {
     if (user) {
       if (user.role === 'admin') navigate('/admin/dashboard');
       else if (user.role === 'officer') navigate('/officer/dashboard');
-      else navigate('/citizen/dashboard');
+      else navigate('/citizen/home');
     }
   }, [user, navigate]);
 
@@ -75,7 +75,7 @@ export default function Home() {
       cta: T('Open Dashboard '), action: () => navigate('/public'), badge: null,
     },
     {
-      icon: '', color: '#7C3AED',
+      icon: '', color: '#138808',
       title: lang === 'hi' ? 'यह कैसे काम करता है' : 'How It Works',
       desc: T('Understand the 6-step automated grievance lifecycle from submission to resolution.'),
       cta: T('Learn More '), action: () => navigate('/public'), badge: null,
@@ -91,27 +91,6 @@ export default function Home() {
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: '#FAFBFE', minHeight: '100vh' }}>
-
-      {/* ── Top Government Bar ── */}
-      <div style={styles.topbar}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ display: 'flex', gap: 3 }}>
-            {['#FF9933', '#FFF', '#138808'].map(c => (
-              <div key={c} style={{ width: 5, height: 16, borderRadius: 2, background: c }} />
-            ))}
-          </div>
-          <span style={styles.topbarText}>
-            {T('Government of Delhi · Ministry of Personnel, Public Grievances & Pensions')}
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: 18, alignItems: 'center' }}>
-          {['Screen Reader', 'Skip to Content', 'A-', 'A', 'A+'].map(t => (
-            <span key={t} style={styles.tbLink}>{t}</span>
-          ))}
-          {/* ── Language Toggle ── */}
-          <LanguageToggle />
-        </div>
-      </div>
 
       {/* ── Sticky Header ── */}
       <header style={styles.header}>
@@ -139,7 +118,8 @@ export default function Home() {
           ))}
         </nav>
 
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <LanguageToggle />
           <button style={styles.btnRegister} onClick={() => navigate('/register')}>
             {T('Register / Login ')}
           </button>
@@ -302,9 +282,6 @@ export default function Home() {
 }
 
 const styles = {
-  topbar: { background: '#0F2557', height: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', borderBottom: '3px solid #E8620A' },
-  topbarText: { fontSize: 11, color: 'rgba(255,255,255,0.8)', fontWeight: 500 },
-  tbLink: { fontSize: 11, color: 'rgba(255,255,255,0.55)', cursor: 'pointer' },
   header: { background: '#fff', borderBottom: '1px solid #E2E8F0', height: 72, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', boxShadow: '0 2px 8px rgba(15,37,87,0.06)', position: 'sticky', top: 0, zIndex: 200 },
   brand: { display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' },
   emblem: { width: 48, height: 48, borderRadius: 10, background: 'linear-gradient(135deg,#0F2557,#1565C0)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 },

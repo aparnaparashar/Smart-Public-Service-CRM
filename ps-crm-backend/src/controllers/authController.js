@@ -39,12 +39,20 @@ const sendOTPHandler = async (req, res) => {
 
     // Generate OTP, store it, send email
     const otp = storeOTP(email);
-    await sendOTPEmail(email, otp, name);
+    console.log(`[Auth] OTP generated for ${email}: ${otp}`);
+    
+    try {
+      await sendOTPEmail(email, otp, name);
+      console.log(`[Auth] OTP sent successfully to ${email}`);
+    } catch (emailError) {
+      console.error(`[Auth] Failed to send OTP email to ${email}:`, emailError.message);
+      throw new Error(`Email sending failed: ${emailError.message}`);
+    }
 
     res.json({ success: true, message: 'OTP sent successfully. Please check your email.' });
   } catch (error) {
-    console.error('[Auth] sendOTP error:', error.message);
-    res.status(500).json({ success: false, message: 'Failed to send OTP. Please try again.' });
+    console.error('[Auth] sendOTP error:', error.message, error.stack);
+    res.status(500).json({ success: false, message: `Failed to send OTP: ${error.message}` });
   }
 };
 
@@ -128,12 +136,20 @@ const resendOTP = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Email already registered' });
 
     const otp = storeOTP(email); // overwrites previous OTP
-    await sendOTPEmail(email, otp, name);
+    console.log(`[Auth] Resending OTP for ${email}: ${otp}`);
+    
+    try {
+      await sendOTPEmail(email, otp, name);
+      console.log(`[Auth] Resend OTP successfully sent to ${email}`);
+    } catch (emailError) {
+      console.error(`[Auth] Failed to resend OTP email to ${email}:`, emailError.message);
+      throw new Error(`Email sending failed: ${emailError.message}`);
+    }
 
     res.json({ success: true, message: 'A new OTP has been sent to your email.' });
   } catch (error) {
-    console.error('[Auth] resendOTP error:', error.message);
-    res.status(500).json({ success: false, message: 'Failed to resend OTP. Please try again.' });
+    console.error('[Auth] resendOTP error:', error.message, error.stack);
+    res.status(500).json({ success: false, message: `Failed to resend OTP: ${error.message}` });
   }
 };
 

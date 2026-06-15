@@ -43,5 +43,5 @@ const { startWhatsAppBot } = require('./src/config/whatsappBot');
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   startSLAService();
-  startWhatsAppBot();  // ✅ runs only once
+  startWhatsAppBot();  // WhatsApp bot enabled with QR code
 });

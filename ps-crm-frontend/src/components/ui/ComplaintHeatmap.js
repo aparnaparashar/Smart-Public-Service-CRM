@@ -1,9 +1,7 @@
 // ps-crm-frontend/src/components/ui/ComplaintHeatmap.js
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
-
-const API      = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+import API from '../../api';
 const MAPS_KEY = process.env.REACT_APP_GOOGLE_MAPS_KEY || '';
 
 const DELHI_CENTER = { lat: 28.6517, lng: 77.2219 };
@@ -32,6 +30,7 @@ function loadGoogleMaps(apiKey) {
     const script    = document.createElement('script');
     script.id       = 'gmaps-script';
     script.src      = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=visualization`;
+    script.crossOrigin = 'anonymous';
     script.async    = true;
     script.defer    = true;
     script.onload   = resolve;
@@ -60,10 +59,11 @@ export default function ComplaintHeatmap() {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get(`${API}/heatmap/data`);
+      const { data } = await API.get('/heatmap/data');
       setHeatmapData(data);
       setError(null);
-    } catch {
+    } catch (err) {
+      console.error('Heatmap fetch error:', err);
       setError('Failed to load heatmap data. Please try again.');
     } finally {
       setLoading(false);
@@ -80,121 +80,145 @@ export default function ComplaintHeatmap() {
     }
     loadGoogleMaps(MAPS_KEY)
       .then(() => {
-        if (!mapDivRef.current || googleMapRef.current) return;
+        try {
+          if (!mapDivRef.current || googleMapRef.current) return;
 
-        const bounds = new window.google.maps.LatLngBounds(
-          new window.google.maps.LatLng(DELHI_BOUNDS.south, DELHI_BOUNDS.west),
-          new window.google.maps.LatLng(DELHI_BOUNDS.north, DELHI_BOUNDS.east)
-        );
+          const bounds = new window.google.maps.LatLngBounds(
+            new window.google.maps.LatLng(DELHI_BOUNDS.south, DELHI_BOUNDS.west),
+            new window.google.maps.LatLng(DELHI_BOUNDS.north, DELHI_BOUNDS.east)
+          );
 
-        const map = new window.google.maps.Map(mapDivRef.current, {
-          center:  DELHI_CENTER,
-          zoom:    11,
-          minZoom: 10,
-          maxZoom: 16,
-          restriction: { latLngBounds: bounds, strictBounds: true },
-          mapTypeId:        'roadmap',
-          disableDefaultUI: false,
-          zoomControl:      true,
-          mapTypeControl:   false,
-          streetViewControl:false,
-          fullscreenControl:true,
-          rotateControl:    false,
-          styles: [
-            { featureType:'poi',             stylers:[{ visibility:'off' }] },
-            { featureType:'transit.station', stylers:[{ visibility:'off' }] },
-            { featureType:'road', elementType:'labels.icon', stylers:[{ visibility:'off' }] },
-            { featureType:'water',        elementType:'geometry', stylers:[{ color:'#b3d9f5' }] },
-            { featureType:'landscape',    elementType:'geometry', stylers:[{ color:'#f2f2ef' }] },
-            { featureType:'road',         elementType:'geometry', stylers:[{ color:'#ffffff' }] },
-            { featureType:'road.arterial',elementType:'geometry', stylers:[{ color:'#ebebeb' }] },
-            { featureType:'road.highway', elementType:'geometry', stylers:[{ color:'#ffd966' }] },
-            { featureType:'administrative', elementType:'geometry.stroke',
-              stylers:[{ color:'#aaaaaa' }, { weight:1.5 }] },
-            { featureType:'administrative.locality', elementType:'labels.text.fill',
-              stylers:[{ color:'#444444' }] },
-            // Grey out everything outside Delhi boundary
-            { featureType:'administrative.country', elementType:'geometry.fill',
-              stylers:[{ color:'#e8e8e8' }] },
-          ],
-        });
+          if (!window.google?.maps?.Map) {
+            throw new Error('Google Maps Map constructor not available');
+          }
 
-        infoWinRef.current   = new window.google.maps.InfoWindow();
-        googleMapRef.current = map;
-        setMapReady(true);
+          const map = new window.google.maps.Map(mapDivRef.current, {
+            center:  DELHI_CENTER,
+            zoom:    11,
+            minZoom: 10,
+            maxZoom: 16,
+            restriction: { latLngBounds: bounds, strictBounds: true },
+            mapTypeId:        'roadmap',
+            disableDefaultUI: false,
+            zoomControl:      true,
+            mapTypeControl:   false,
+            streetViewControl:false,
+            fullscreenControl:true,
+            rotateControl:    false,
+            styles: [
+              { featureType:'poi',             stylers:[{ visibility:'off' }] },
+              { featureType:'transit.station', stylers:[{ visibility:'off' }] },
+              { featureType:'road', elementType:'labels.icon', stylers:[{ visibility:'off' }] },
+              { featureType:'water',        elementType:'geometry', stylers:[{ color:'#b3d9f5' }] },
+              { featureType:'landscape',    elementType:'geometry', stylers:[{ color:'#f2f2ef' }] },
+              { featureType:'road',         elementType:'geometry', stylers:[{ color:'#ffffff' }] },
+              { featureType:'road.arterial',elementType:'geometry', stylers:[{ color:'#ebebeb' }] },
+              { featureType:'road.highway', elementType:'geometry', stylers:[{ color:'#ffd966' }] },
+              { featureType:'administrative', elementType:'geometry.stroke',
+                stylers:[{ color:'#aaaaaa' }, { weight:1.5 }] },
+              { featureType:'administrative.locality', elementType:'labels.text.fill',
+                stylers:[{ color:'#444444' }] },
+              // Grey out everything outside Delhi boundary
+              { featureType:'administrative.country', elementType:'geometry.fill',
+                stylers:[{ color:'#e8e8e8' }] },
+            ],
+          });
+
+          infoWinRef.current   = new window.google.maps.InfoWindow();
+          googleMapRef.current = map;
+          setMapReady(true);
+        } catch (err) {
+          console.error('Google Maps init error:', err);
+          setError('Failed to initialize Google Maps. Check your API key and network.');
+        }
       })
-      .catch(() => setError('Failed to load Google Maps. Check your API key.'));
+      .catch((err) => {
+        console.error('Google Maps script load error:', err);
+        setError('Failed to load Google Maps script. Check your API key.');
+      });
   }, []);
 
   // ── 3. Draw heatmap layer ─────────────────────────────────────────────────
   useEffect(() => {
-    if (!mapReady || !heatmapData || !window.google?.maps?.visualization) return;
-    if (heatLayerRef.current) heatLayerRef.current.setMap(null);
-    if (!heatmapData.heatmapPoints.length) return;
+    try {
+      if (!mapReady || !heatmapData || !window.google?.maps?.visualization) return;
+      if (heatLayerRef.current) heatLayerRef.current.setMap(null);
+      if (!heatmapData.heatmapPoints.length) return;
 
-    const points = heatmapData.heatmapPoints.map(p => ({
-      location: new window.google.maps.LatLng(p.lat, p.lng),
-      weight:   p.weight,
-    }));
+      const points = heatmapData.heatmapPoints.map(p => ({
+        location: new window.google.maps.LatLng(p.lat, p.lng),
+        weight:   p.weight,
+      }));
 
-    heatLayerRef.current = new window.google.maps.visualization.HeatmapLayer({
-      data:    points,
-      map:     googleMapRef.current,
-      radius:  55,
-      opacity: 0.82,
-      gradient: [
-        'rgba(0,   255,  0,   0)',
-        'rgba(0,   255,  0,   1)',
-        'rgba(173, 255,  47,  1)',
-        'rgba(255, 255,  0,   1)',
-        'rgba(255, 165,  0,   1)',
-        'rgba(255, 69,   0,   1)',
-        'rgba(220, 38,   38,  1)',
-      ],
-    });
+      heatLayerRef.current = new window.google.maps.visualization.HeatmapLayer({
+        data:    points,
+        map:     googleMapRef.current,
+        radius:  55,
+        opacity: 0.82,
+        gradient: [
+          'rgba(0,   255,  0,   0)',
+          'rgba(0,   255,  0,   1)',
+          'rgba(173, 255,  47,  1)',
+          'rgba(255, 255,  0,   1)',
+          'rgba(255, 165,  0,   1)',
+          'rgba(255, 69,   0,   1)',
+          'rgba(220, 38,   38,  1)',
+        ],
+      });
+    } catch (err) {
+      console.error('Heatmap drawing error:', err);
+    }
   }, [mapReady, heatmapData]);
 
   // ── 4. Draw ward markers ──────────────────────────────────────────────────
   useEffect(() => {
-    if (!mapReady || !heatmapData || !window.google) return;
-    markersRef.current.forEach(m => m.setMap(null));
-    markersRef.current = [];
-    if (!showMarkers) return;
+    try {
+      if (!mapReady || !heatmapData || !window.google) return;
+      markersRef.current.forEach(m => m.setMap(null));
+      markersRef.current = [];
+      if (!showMarkers) return;
 
-    heatmapData.wardDetails.forEach(ward => {
-      const cfg   = URGENCY_CONFIG[ward.urgencyLevel] || URGENCY_CONFIG.Low;
-      const scale = Math.max(13, Math.min(26, 11 + ward.total * 1.5));
+      heatmapData.wardDetails.forEach(ward => {
+        const cfg   = URGENCY_CONFIG[ward.urgencyLevel] || URGENCY_CONFIG.Low;
+        const scale = Math.max(13, Math.min(26, 11 + ward.total * 1.5));
 
-      const marker = new window.google.maps.Marker({
-        position: { lat: ward.lat, lng: ward.lng },
-        map:      googleMapRef.current,
-        title:    `${ward.ward} — ${ward.total} complaints`,
-        icon: {
-          path:         window.google.maps.SymbolPath.CIRCLE,
-          scale,
-          fillColor:    cfg.color,
-          fillOpacity:  0.92,
-          strokeColor:  '#ffffff',
-          strokeWeight: 2.5,
-        },
-        // Show complaint count on the marker bubble
-        label: {
-          text:      String(ward.total),
-          color:     '#ffffff',
-          fontSize:  '11px',
-          fontWeight:'700',
-        },
-        zIndex: ward.total,
+        const marker = new window.google.maps.Marker({
+          position: { lat: ward.lat, lng: ward.lng },
+          map:      googleMapRef.current,
+          title:    `${ward.ward} — ${ward.total} complaints`,
+          icon: {
+            path:         window.google.maps.SymbolPath.CIRCLE,
+            scale,
+            fillColor:    cfg.color,
+            fillOpacity:  0.92,
+            strokeColor:  '#ffffff',
+            strokeWeight: 2.5,
+          },
+          // Show complaint count on the marker bubble
+          label: {
+            text:      String(ward.total),
+            color:     '#ffffff',
+            fontSize:  '11px',
+            fontWeight:'700',
+          },
+          zIndex: ward.total,
+        });
+
+        marker.addListener('click', () => {
+          try {
+            setSelectedWard(ward);
+            infoWinRef.current.setContent(buildInfoHTML(ward));
+            infoWinRef.current.open(googleMapRef.current, marker);
+          } catch (clickErr) {
+            console.error('Marker click handler error:', clickErr);
+          }
+        });
+
+        markersRef.current.push(marker);
       });
-
-      marker.addListener('click', () => {
-        setSelectedWard(ward);
-        infoWinRef.current.setContent(buildInfoHTML(ward));
-        infoWinRef.current.open(googleMapRef.current, marker);
-      });
-
-      markersRef.current.push(marker);
-    });
+    } catch (err) {
+      console.error('Marker drawing error:', err);
+    }
   }, [mapReady, heatmapData, showMarkers]);
 
   // ── InfoWindow HTML ───────────────────────────────────────────────────────
@@ -257,7 +281,7 @@ export default function ComplaintHeatmap() {
       {/* Header */}
       <div style={S.header}>
         <div>
-          <h2 style={S.title}>Complaint Heatmap — Delhi</h2>
+          <h2 style={S.title}>Complaint Heatmap - Delhi</h2>
           <p style={S.subtitle}>Locality-wise complaint density and urgency</p>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:'12px', flexWrap:'wrap' }}>
@@ -275,11 +299,11 @@ export default function ComplaintHeatmap() {
       {heatmapData && (
         <div style={S.pills}>
           {[
-            { label:'Total Complaints', value: heatmapData.summary.totalComplaints, color:'#1a56db' },
-            { label:'Resolved',         value: heatmapData.summary.totalResolved,   color:'#16a34a' },
-            { label:'Escalated',        value: heatmapData.summary.totalEscalated,  color:'#dc2626' },
-            { label:'Active Areas',     value: heatmapData.summary.activeWards,     color:'#7c3aed' },
-            { label:'Resolution Rate',  value:`${heatmapData.summary.resolutionRate}%`, color:'#0891b2' },
+            { label:'Total Complaints', value: heatmapData.summary.totalComplaints, color:'#103791' },
+            { label:'Resolved',         value: heatmapData.summary.totalResolved,   color:'#103791' },
+            { label:'Escalated',        value: heatmapData.summary.totalEscalated,  color:'#103791' },
+            { label:'Active Areas',     value: heatmapData.summary.activeWards,     color:'#103791' },
+            { label:'Resolution Rate',  value:`${heatmapData.summary.resolutionRate}%`, color:'#103791' },
           ].map(p => (
             <div key={p.label} style={S.pill}>
               <span style={{ fontSize:'22px', fontWeight:700, color:p.color, lineHeight:1 }}>{p.value}</span>

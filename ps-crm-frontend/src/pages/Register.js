@@ -189,7 +189,7 @@ export default function Register() {
       }
 
       login(res.data.data);
-      navigate('/citizen/dashboard');
+      navigate('/citizen/home');
     } catch (err) {
       setError(err.response?.data?.message || (lang === 'hi' ? 'सत्यापन विफल हुआ' : 'Verification failed. Please try again.'));
     }
@@ -250,7 +250,7 @@ export default function Register() {
   return (
     <div style={styles.container}>
 
-      {/* Left Panel — identical to original */}
+      {/* Left Panel - identical to original */}
       <div style={styles.left}>
         <div style={styles.leftInner}>
           <div style={styles.leftLogo} onClick={() => navigate('/')}>
@@ -294,7 +294,7 @@ export default function Register() {
         <div style={styles.form}>
 
           {/* ══════════════════════════════════════════════════════════
-              STEP 1 — Registration form (identical to original)
+              STEP 1 - Registration form (identical to original)
           ══════════════════════════════════════════════════════════ */}
           {step === 'form' && (
             <>
@@ -329,7 +329,7 @@ export default function Register() {
 
               <p style={styles.formSub}>
                 {registerType === 'officer'
-                  ? (lang === 'hi' ? 'अधिकारी खाता बनाएं — एडमिन अनुमोदन आवश्यक' : 'Create officer account — admin approval required')
+                  ? (lang === 'hi' ? 'अधिकारी खाता बनाएं - एडमिन अनुमोदन आवश्यक' : 'Create officer account - admin approval required')
                   : tx('Register as a citizen to access the portal', lang)}
               </p>
 
@@ -447,7 +447,7 @@ export default function Register() {
           )}
 
           {/* ══════════════════════════════════════════════════════════
-              STEP 2 — OTP Verification  ← NEW
+              STEP 2 - OTP Verification  <- NEW
           ══════════════════════════════════════════════════════════ */}
           {step === 'otp' && (
             <>
@@ -515,10 +515,10 @@ export default function Register() {
   );
 }
 
-// ── Styles — identical to your original ──────────────────────────────────────
+// -- Styles - identical to your original --────────────────────────────────────
 const styles = {
   container:     { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif", position: 'relative' },
-  left:          { flex: 1, background: 'linear-gradient(135deg,#0F2557 0%,#1A3A6E 50%,#1E5096 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
+  left:          { flex: 1, backgroundImage: "linear-gradient(135deg, rgba(15,37,87,0.88) 0%, rgba(26,58,110,0.6) 60%), url('/delhi-hero.png')", backgroundSize: 'cover', backgroundPosition: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px' },
   leftInner:     { maxWidth: 440 },
   leftLogo:      { display: 'flex', alignItems: 'center', gap: 14, marginBottom: 48, cursor: 'pointer' },
   emblem:        { width: 50, height: 50, borderRadius: 12, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 700, color: '#fff' },

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import API from '../../api';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 
 // ── Feedback Section ─────────────────────────────────────────────────────────
 function FeedbackSection({ complaintId, lang }) {
@@ -140,48 +141,7 @@ export default function OfficerDashboard() {
 
   return (
     <div style={styles.page}>
-      {/* Sidebar */}
-      <div style={styles.sidebar}>
-        <div style={styles.sidebarLogo} onClick={() => navigate('/')}>
-          <div style={styles.emblem}></div>
-          <div><div style={styles.logoText}>PS-CRM</div><div style={styles.logoSub}>{T('Officer Portal')}</div></div>
-        </div>
-        <div style={styles.userCard}>
-          <div style={styles.userAvatar}>{user?.name?.charAt(0).toUpperCase()}</div>
-          <div style={styles.userName}>{user?.name}</div>
-          <div style={styles.userEmail}>{user?.email}</div>
-          <div style={styles.officerBadge}>‍ {T('Field Officer')}</div>
-        </div>
-        <nav style={styles.nav}>
-          <div style={styles.navLabel}>{T('MY WORK')}</div>
-          {[
-            { icon: '', label: 'My Dashboard', path: '/officer/dashboard', active: true },
-            { icon: '', label: 'All Cases', path: null, action: () => { setFilter('All'); complaintsRef.current?.scrollIntoView({ behavior: 'smooth' }); } },
-            { icon: '', label: 'My Profile', path: '/officer/profile' },
-            { icon: '', label: 'Notifications', path: '/notifications' },
-            { icon: '', label: 'Public Dashboard', path: '/public' },
-          ].map((l, i) => (
-            <div key={i} onClick={() => l.action ? l.action() : navigate(l.path)}
-              style={{ ...styles.navLink, ...(l.active ? styles.navLinkActive : {}) }}>
-              <span style={{ fontSize: 18 }}>{l.icon}</span><span>{T(l.label)}</span>
-            </div>
-          ))}
-        </nav>
-        <div style={styles.slaBox}>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontWeight: 700, letterSpacing: 1, marginBottom: 10 }}>{T('SLA GUIDELINES')}</div>
-          {[{ u: 'High', t: '24h', c: '#DC2626' }, { u: 'Medium', t: '72h', c: '#D97706' }, { u: 'Low', t: '7 days', c: '#16A34A' }].map((s, i) => (
-            <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-              <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{T(s.u)}</span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: s.c }}>{s.t}</span>
-            </div>
-          ))}
-        </div>
-        <div style={styles.sidebarBottom}>
-          <div style={{ ...styles.navLink, color: 'rgba(255,255,255,0.4)' }} onClick={logout}>
-            <span style={{ fontSize: 18 }}></span><span>{T('Logout')}</span>
-          </div>
-        </div>
-      </div>
+      <HeaderNavbar activeTab="officer-dashboard" />
 
       {/* Main */}
       <div style={styles.main}>
@@ -549,24 +509,8 @@ const imgStyles = {
   uploadBtn: { width: '100%', padding: '9px 0', borderRadius: 8, border: '1.5px dashed', fontSize: 13, fontWeight: 600, cursor: 'pointer', textAlign: 'center' },
 };
 const styles = {
-  page: { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-  sidebar: { width: 260, background: 'linear-gradient(180deg,#0F2557 0%,#16304F 100%)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100, overflowY: 'auto' },
-  sidebarLogo: { padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' },
-  emblem: { width: 42, height: 42, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 },
-  logoText: { fontFamily: "'Noto Serif',serif", fontSize: 17, fontWeight: 700, color: '#fff' },
-  logoSub: { fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 },
-  userCard: { padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'center' },
-  userAvatar: { width: 56, height: 56, borderRadius: '50%', background: '#1565C0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 22, margin: '0 auto 10px' },
-  userName: { color: '#fff', fontWeight: 700, fontSize: 15 },
-  userEmail: { color: 'rgba(255,255,255,0.5)', fontSize: 11, marginTop: 3 },
-  officerBadge: { display: 'inline-block', marginTop: 8, padding: '3px 12px', background: 'rgba(21,101,192,0.25)', borderRadius: 20, fontSize: 11, color: '#60A5FA', fontWeight: 600 },
-  nav: { padding: '20px 12px', flex: 1 },
-  navLabel: { color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, padding: '0 12px', marginBottom: 8 },
-  navLink: { display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', borderRadius: 8, marginBottom: 4, fontSize: 14 },
-  navLinkActive: { color: '#fff', background: 'rgba(232,98,10,0.2)', borderLeft: '3px solid #E8620A' },
-  slaBox: { margin: '0 12px', padding: '16px', background: 'rgba(255,255,255,0.06)', borderRadius: 10, marginBottom: 12 },
-  sidebarBottom: { padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' },
-  main: { marginLeft: 260, flex: 1, padding: '32px', background: '#F4F6FB', minHeight: '100vh' },
+  page: { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
+  main: { maxWidth: 1240, margin: '0 auto', padding: '40px 40px 60px', background: '#F4F6FB', minHeight: 'calc(100vh - 150px)', boxSizing: 'border-box' },
   topbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E8EEF8' },
   pageTitle: { fontFamily: "'Noto Serif',serif", fontSize: 24, fontWeight: 700, color: '#0F2557' },
   pageSub: { color: '#6B7FA3', fontSize: 13, marginTop: 4 },

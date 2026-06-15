@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import API from '../../api';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 
 // ── Feedback Section Component ───────────────────────────────────────────────
 function FeedbackSection({ complaintId }) {
@@ -186,7 +187,7 @@ export default function ComplaintsList() {
 
   return (
     <div style={styles.layout}>
-      <Sidebar navigate={navigate} logout={logout} user={user} active="complaints" />
+      <HeaderNavbar activeTab="complaints" />
 
       <div style={styles.main}>
         {/* Topbar */}
@@ -330,7 +331,7 @@ export default function ComplaintsList() {
                       <select style={{ ...styles.actionSelect, borderColor: c.assignedTo ? '#16A34A' : '#D8E2F0', color: c.assignedTo ? '#16A34A' : '#6B7FA3', opacity: assigning === c._id ? 0.5 : 1, minWidth: 140 }}
                         value={c.assignedTo || ''} disabled={assigning === c._id}
                         onChange={e => assignOfficer(c._id, e.target.value)}>
-                        <option value=''>— Unassigned —</option>
+                        <option value=''>- Unassigned -</option>
                         {officers.map(o => <option key={o._id} value={o._id}>{o.name}</option>)}
                       </select>
                     </td>
@@ -552,73 +553,9 @@ export default function ComplaintsList() {
   );
 }
 
-// ── Shared Admin Sidebar ─────────────────────────────────────────────────────
-export function Sidebar({ navigate, logout, user, active }) {
-  const links = [
-    { icon: '', label: 'Dashboard',        path: '/admin/dashboard',  key: 'dashboard' },
-    { icon: '', label: 'All Complaints',   path: '/admin/complaints', key: 'complaints' },
-    { icon: '‍', label: 'Officers',       path: '/admin/officers',   key: 'officers' },
-    { icon: '', label: 'Analytics',        path: '/admin/analytics',  key: 'analytics' },
-    { icon: '', label: 'My Profile',     path: '/admin/profile',    key: 'profile' },
-    { icon: '', label: 'Public Dashboard', path: '/public',           key: 'public' },
-    { icon: '', label: 'Notifications',    path: '/notifications',    key: 'notifications' },
-  ];
-
-  return (
-    <div style={sidebarStyles.sidebar}>
-      <div style={sidebarStyles.logo} onClick={() => navigate('/')}>
-        <div style={sidebarStyles.emblem}>🏛️</div>
-        <div>
-          <div style={sidebarStyles.logoText}>PS-CRM</div>
-          <div style={sidebarStyles.logoSub}>Admin Portal</div>
-        </div>
-      </div>
-      <div style={sidebarStyles.userInfo}>
-        <div style={sidebarStyles.avatar}>{user?.name?.charAt(0).toUpperCase()}</div>
-        <div>
-          <div style={sidebarStyles.userName}>{user?.name}</div>
-          <div style={sidebarStyles.userRole}>Administrator</div>
-        </div>
-      </div>
-      <nav style={sidebarStyles.nav}>
-        <div style={sidebarStyles.navLabel}>MAIN MENU</div>
-        {links.map((l, i) => (
-          <div key={i} onClick={() => navigate(l.path)}
-            style={{ ...sidebarStyles.navLink, ...(active === l.key ? sidebarStyles.navLinkActive : {}) }}>
-            <span style={{ fontSize: 18 }}>{l.icon}</span>
-            <span>{l.label}</span>
-          </div>
-        ))}
-      </nav>
-      <div style={sidebarStyles.bottom}>
-        <div style={{ ...sidebarStyles.navLink, color: 'rgba(255,255,255,0.4)' }} onClick={logout}>
-          <span style={{ fontSize: 18 }}></span><span>Logout</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const sidebarStyles = {
-  sidebar:       { width: 260, background: 'linear-gradient(180deg,#0F2557 0%,#16304F 100%)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, bottom: 0, left: 0, zIndex: 100, overflowY: 'auto' },
-  logo:          { padding: '24px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' },
-  emblem:        { width: 42, height: 42, borderRadius: 10, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 },
-  logoText:      { fontFamily: "'Noto Serif',serif", fontSize: 17, fontWeight: 700, color: '#fff' },
-  logoSub:       { fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 2 },
-  userInfo:      { padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: 12 },
-  avatar:        { width: 38, height: 38, borderRadius: '50%', background: '#E8620A', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 700, fontSize: 16, flexShrink: 0 },
-  userName:      { color: '#fff', fontWeight: 600, fontSize: 14 },
-  userRole:      { color: 'rgba(255,255,255,0.45)', fontSize: 11, marginTop: 2 },
-  nav:           { padding: '20px 12px', flex: 1 },
-  navLabel:      { color: 'rgba(255,255,255,0.3)', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, padding: '0 12px', marginBottom: 8 },
-  navLink:       { display: 'flex', alignItems: 'center', gap: 12, padding: '11px 14px', color: 'rgba(255,255,255,0.65)', cursor: 'pointer', borderRadius: 8, marginBottom: 4, fontSize: 14 },
-  navLinkActive: { color: '#fff', background: 'rgba(232,98,10,0.2)', borderLeft: '3px solid #E8620A' },
-  bottom:        { padding: '12px', borderTop: '1px solid rgba(255,255,255,0.1)' },
-};
-
 const styles = {
-  layout:       { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-  main:         { marginLeft: 260, flex: 1, padding: '32px', background: '#F4F6FB', minHeight: '100vh' },
+  layout:       { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
+  main:         { maxWidth: 1240, margin: '0 auto', padding: '40px 40px 60px', background: '#F4F6FB', minHeight: 'calc(100vh - 150px)', boxSizing: 'border-box' },
   topbar:       { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E8EEF8' },
   pageTitle:    { fontFamily: "'Noto Serif',serif", fontSize: 24, fontWeight: 700, color: '#0F2557' },
   pageSub:      { color: '#6B7FA3', fontSize: 13, marginTop: 4 },

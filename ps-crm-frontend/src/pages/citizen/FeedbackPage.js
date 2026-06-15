@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useLang, tx } from '../../context/LanguageContext';
-import LanguageToggle from '../../components/layout/LanguageToggle';
 import API from '../../api';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
+import LanguageToggle from '../../components/layout/LanguageToggle';
 
 // ── Platform Ratings  ─────────────────────────────────────────────
 function PlatformRatings({ lang }) {
@@ -315,7 +316,7 @@ export default function FeedbackPage() {
   if (submitted) {
     return (
       <div style={styles.page}>
-        <Header navigate={navigate} lang={lang} />
+      <HeaderNavbar activeTab="" />
         <div style={styles.centerWrap}>
           <div style={styles.successCard}>
             <div style={{ fontSize: 72, marginBottom: 16 }}></div>
@@ -348,7 +349,7 @@ export default function FeedbackPage() {
 
   return (
     <div style={styles.page}>
-      <Header navigate={navigate} lang={lang} />
+      <HeaderNavbar activeTab="" />
       <div style={styles.container}>
         <div style={styles.pageHead}>
           <h1 style={styles.pageTitle}> {tx('Rate Your Experience', lang)}</h1>

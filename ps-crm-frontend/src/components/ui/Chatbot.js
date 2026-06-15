@@ -16,11 +16,11 @@ const styles = {
   // Launcher button
   launcher: {
     position: 'fixed', bottom: '28px', right: '28px', zIndex: 9999,
-    width: '60px', height: '60px', borderRadius: '50%',
+    width: '100px', height: '100px', borderRadius: '50%',
     background: 'linear-gradient(135deg, #1a56db 0%, #0e3fa8 100%)',
     border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(26,86,219,0.45)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    transition: 'transform 0.2s, box-shadow 0.2s',
+    transition: 'transform 0.2s, box-shadow 0.2s', overflow: 'hidden',
   },
   launcherBadge: {
     position: 'absolute', top: '-4px', right: '-4px',
@@ -49,9 +49,9 @@ const styles = {
     flexShrink: 0,
   },
   avatar: {
-    width: '40px', height: '40px', borderRadius: '50%',
-    background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center',
-    justifyContent: 'center', fontSize: '20px', flexShrink: 0,
+    width: '50px', height: '50px', borderRadius: '50%',
+    background: 'transparent', display: 'flex', alignItems: 'center',
+    justifyContent: 'center', fontSize: '20px', flexShrink: 0, overflow: 'hidden',
   },
   headerInfo: { flex: 1, minWidth: 0 },
   headerName: { color: '#fff', fontSize: '15px', fontWeight: 600, margin: 0, lineHeight: 1.2 },
@@ -75,10 +75,9 @@ const styles = {
   bubbleRow: { display: 'flex', gap: '8px', alignItems: 'flex-end' },
   bubbleRowUser: { flexDirection: 'row-reverse' },
   botAvatar: {
-    width: '28px', height: '28px', borderRadius: '50%',
-    background: 'linear-gradient(135deg, #1a56db, #0e3fa8)',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: '13px', flexShrink: 0, color: '#fff',
+    width: '32px', height: '32px', borderRadius: '50%',
+    background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
+    fontSize: '13px', flexShrink: 0, color: '#fff', overflow: 'hidden',
   },
   bubble: {
     maxWidth: '78%', padding: '10px 13px', borderRadius: '16px',
@@ -203,7 +202,9 @@ function TypingIndicator() {
 function BotBubble({ text, children, time }) {
   return (
     <div style={styles.bubbleRow}>
-      <div style={styles.botAvatar}>🏛️</div>
+      <div style={styles.botAvatar}>
+        <img src="/JanMitra.jpeg" alt="JanMitra" style={{ width: '100%', height: '200%', borderRadius: '50%', objectFit: 'cover' }} />
+      </div>
       <div style={{ maxWidth: '78%' }}>
         <div style={{ ...styles.bubble, ...styles.bubbleBot }}>
           {text && <span dangerouslySetInnerHTML={{ __html: HL.text(text) }} />}
@@ -892,7 +893,7 @@ export default function Chatbot() {
       >
         {open
           ? <svg width="22" height="22" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="4" x2="4" y2="18"/><line x1="4" y1="4" x2="18" y2="18"/></svg>
-          : <span style={{ fontSize: '20px', lineHeight: 1 }}>{'🤖'}</span>
+          : <img src="/JanMitra.jpeg" alt="JanMitra" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
         }
       </button>
 
@@ -901,7 +902,7 @@ export default function Chatbot() {
         <div style={styles.widget}>
           {/* Header */}
           <div style={styles.header}>
-            <div style={styles.avatar}>🤖</div>
+            <img src="/JanMitra.jpeg" alt="JanMitra" style={{ width: '60px', height: '60px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
             <div style={styles.headerInfo}>
               <p style={styles.headerName}>JanMitra AI</p>
               <p style={styles.headerSub}>
@@ -913,13 +914,22 @@ export default function Chatbot() {
               <button style={styles.headerBtn} title={hi ? 'Reset chat' : 'Reset chat'}
                 onClick={() => { handleUserSend('', { action:'reset', _display:'' }); }}
               >
-                🔄
+                <svg width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 8a6 6 0 0 1 10-5"/>
+                  <path d="M14 3l2 0 0 2"/>
+                  <path d="M14 8a6 6 0 0 1-10 5"/>
+                  <path d="M2 13l-2 0 0-2"/>
+                </svg>
               </button>
               {lang && (
                 <button style={styles.headerBtn} title={hi?'Home / Menu':'Home / Menu'}
                   onClick={() => { handleUserSend('', { action:'menu', _display:'' }); }}
                 >
-                  🏠
+                  <svg width="16" height="16" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="4" y1="6" x2="20" y2="6"/>
+                    <line x1="4" y1="12" x2="20" y2="12"/>
+                    <line x1="4" y1="18" x2="20" y2="18"/>
+                  </svg>
                 </button>
               )}
               <button style={styles.headerBtn} title="Close" onClick={() => setOpen(false)}>

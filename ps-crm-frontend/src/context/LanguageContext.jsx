@@ -78,7 +78,7 @@ export const t = {
   // ── Home Page ────────────────────────────────────────────────────────────
   'Your Complaints, Resolved Transparently with AI Intelligence': { hi: 'आपकी शिकायतें, AI बुद्धिमत्ता से पारदर्शी रूप से हल की गईं' },
   'Resolved Transparently': { hi: 'पारदर्शी रूप से हल किया गया' },
-  'PS-CRM is a centralized AI command center for citizen grievance management — NLP auto-classifies complaints, routes them to the right officer instantly, and ensures transparent end-to-end resolution.': { hi: 'पीएस-सीआरएम नागरिक शिकायत प्रबंधन के लिए एक केंद्रीकृत AI कमांड सेंटर है — NLP स्वचालित रूप से शिकायतों को वर्गीकृत करता है, उन्हें तुरंत सही अधिकारी के पास भेजता है और पारदर्शी समाधान सुनिश्चित करता है।' },
+  'PS-CRM is a centralized AI command center for citizen grievance management - NLP auto-classifies complaints, routes them to the right officer instantly, and ensures transparent end-to-end resolution.': { hi: 'पीएस-सीआरएम नागरिक शिकायत प्रबंधन के लिए एक केंद्रीकृत AI कमांड सेंठर है - NLP स्वचलित रूप से शिकायतों को वर्गीकृत करता है, उन्हें तुरंत सही अधिकारी के पास भेजता है और पॉरदर्शी संकल्प सुनिश्रित करता है।' },
   'File a Complaint ': { hi: 'शिकायत दर्ज करें ' },
   'Track Your Complaint': { hi: 'अपनी शिकायत ट्रैक करें' },
   'PLATFORM STATISTICS · LIVE': { hi: 'प्लेटफ़ॉर्म सांख्यिकी · लाइव' },
@@ -112,7 +112,7 @@ export const t = {
   'Login Required': { hi: 'लॉगिन आवश्यक' },
   'Submit via web, app, WhatsApp or SMS in any language. AI handles classification.': { hi: 'वेब, ऐप, व्हाट्सएप या SMS से किसी भी भाषा में जमा करें। AI वर्गीकरण करता है।' },
   "Enter your PSCRM-ID to see real-time progress, SLA countdown and proof.": { hi: 'रियल-टाइम प्रगति, SLA काउंटडाउन और प्रमाण देखने के लिए अपना PSCRM-ID दर्ज करें।' },
-  'Live ward rankings, complaint heatmaps and resolution analytics — no login needed.': { hi: 'लाइव वार्ड रैंकिंग, शिकायत हीटमैप और समाधान विश्लेषण — लॉगिन की आवश्यकता नहीं।' },
+  'Live ward rankings, complaint heatmaps and resolution analytics - no login needed.': { hi: 'लाइव वार्ड रैंकिंग, शिकायत हीटमैप और समाधान विश्लेषण - लॉगइन की आवश्यकता नहीं।' },
   'Understand the 6-step automated grievance lifecycle from submission to resolution.': { hi: 'जमा करने से समाधान तक 6-चरण स्वचालित शिकायत जीवनचक्र समझें।' },
 
   // ── How It Works Steps ───────────────────────────────────────────────────
@@ -155,7 +155,7 @@ export const t = {
   'Category (AI detected )': { hi: 'श्रेणी (AI द्वारा पहचाना )' },
   'Urgency (AI detected )': { hi: 'जरूरी प्रकृति (AI द्वारा पहचाना )' },
   'Photo Evidence': { hi: 'फ़ोटो साक्ष्य' },
-  '(Optional — max 3 images)': { hi: '(वैकल्पिक — अधिकतम 3 फ़ोटो)' },
+  '(Optional - max 3 images)': { hi: '(वैकल्पिक - अधिकतम 3 फलों)' },
   'Click or drag & drop images here': { hi: 'यहाँ क्लिक करें या फ़ोटो खींचकर छोड़ें' },
   'Drop images here!': { hi: 'फ़ोटो यहाँ छोड़ें!' },
   'JPG, PNG, WEBP · Max 3 images · 5MB each': { hi: 'JPG, PNG, WEBP · अधिकतम 3 फ़ोटो · 5MB प्रत्येक' },
@@ -174,7 +174,7 @@ export const t = {
   '10-digit mobile number': { hi: '10 अंकों का मोबाइल नंबर' },
   'Submit Complaint': { hi: 'शिकायत जमा करें' },
   'Submitting...': { hi: 'जमा हो रहा है...' },
-  'Just describe your complaint — our AI automatically detects the category, department, and urgency level for you.': { hi: 'बस अपनी शिकायत बताएं — हमारा AI आपके लिए श्रेणी, विभाग और जरूरी स्तर स्वतः पहचानेगा।' },
+  'Just describe your complaint - our AI automatically detects the category, department, and urgency level for you.': { hi: 'बस अपनी शिकायत बताएं - हमारा AI आपके लिए स्रेणी, विगउर और जरूरी स्तर स्वत: पहचानेगा।' },
   'How It Works': { hi: 'यह कैसे काम करता है' },
   'Describe Your Issue': { hi: 'अपनी समस्या बताएं' },
   'Type your complaint title and description': { hi: 'अपनी शिकायत का शीर्षक और विवरण लिखें' },
@@ -285,7 +285,7 @@ export const t = {
   'complaints': { hi: 'शिकायतें' },
   'Clear': { hi: 'साफ़ करें' },
   'Assign Officer': { hi: 'अधिकारी असाइन करें' },
-  '— Unassigned —': { hi: '— असाइन नहीं —' },
+  '- Unassigned -': { hi: '- असाइन नहीं -' },
   'Change Status': { hi: 'स्थिति बदलें' },
   'No complaints found': { hi: 'कोई शिकायत नहीं मिली' },
 
@@ -372,7 +372,7 @@ export const t = {
   'Escalation Rate': { hi: 'एस्केलेशन दर' },
   'Good': { hi: 'अच्छा' },
   'Monitor': { hi: 'निगरानी' },
-  'Have a grievance? File it now — no login needed to track.': { hi: 'कोई शिकायत है? अभी दर्ज करें — ट्रैक करने के लिए लॉगिन की आवश्यकता नहीं।' },
+  'Have a grievance? File it now - no login needed to track.': { hi: 'कोई शिकायत है? अभी दर्ब करें - कॉवर करने के लिए लॉगइन की आवश्यकता नहीं।' },
   'Join thousands of citizens who resolved their complaints through PS-CRM': { hi: 'उन हजारों नागरिकों से जुड़ें जिन्होंने PS-CRM के माध्यम से अपनी शिकायतें हल कीं' },
   'SUBMISSION CHANNELS': { hi: 'जमा करने के चैनल' },
   'OTP-verified login to file & manage complaints': { hi: 'शिकायतें दर्ज और प्रबंधित करने के लिए OTP-सत्यापित लॉगिन' },
