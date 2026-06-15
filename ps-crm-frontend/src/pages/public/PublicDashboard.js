@@ -539,7 +539,7 @@ const styles = {
   tabBtnActive:        { background: '#EEF2FF', color: '#0F2557' },
   btnOutline:          { padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: '1.5px solid #0F2557', color: '#0F2557', background: 'transparent' },
   btnPrimary:          { padding: '9px 18px', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', border: 'none', background: '#E8620A', color: '#fff' },
-  heroBanner:          { background: 'linear-gradient(135deg,#0F2557 0%,#1A3A6E 50%,#1E5096 100%)', padding: '48px 40px' },
+  heroBanner:          { backgroundImage: "linear-gradient(135deg, rgba(15,37,87,0.85) 0%, rgba(26,58,110,0.6) 60%), url('/delhi-hero.png')", backgroundSize: 'cover', backgroundPosition: 'center', padding: '48px 40px', color: '#fff', borderBottom: '4px solid #FF9933' },
   heroInner:           { maxWidth: 1100, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 40, flexWrap: 'wrap' },
   liveChip:            { display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', padding: '5px 14px', borderRadius: 100, fontSize: 11, color: 'rgba(255,255,255,0.85)', fontWeight: 700, letterSpacing: 1, marginBottom: 14 },
   liveDot:             { width: 7, height: 7, borderRadius: '50%', background: '#4ade80', display: 'inline-block' },

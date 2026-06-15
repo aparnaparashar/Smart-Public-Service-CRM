@@ -217,7 +217,7 @@ export default function Contact() {
 
 const styles = {
   page: { fontFamily: "'DM Sans', sans-serif", background: '#F4F6FB', minHeight: '100vh' },
-  heroBanner: { background: 'linear-gradient(135deg, #1A237E 0%, #1565C0 100%)', padding: '48px 40px', color: '#fff', borderBottom: '4px solid #FF9933' },
+  heroBanner: { backgroundImage: "linear-gradient(135deg, rgba(26,35,126,0.8) 0%, rgba(21,101,192,0.55) 100%), url('/delhi-hero.png')", backgroundSize: 'cover', backgroundPosition: 'center', padding: '48px 40px', color: '#fff', borderBottom: '4px solid #FF9933' },
   heroInner: { maxWidth: 1100, margin: '0 auto', textAlign: 'center' },
   heroTitle: { fontFamily: "'Noto Serif', serif", fontSize: 32, fontWeight: 700, marginBottom: 12 },
   heroSub: { fontSize: 15, color: 'rgba(255,255,255,0.75)', maxWidth: 700, margin: '0 auto', lineHeight: 1.6 },
