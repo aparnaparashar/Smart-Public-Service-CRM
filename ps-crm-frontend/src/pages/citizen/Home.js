@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import LanguageToggle from '../../components/layout/LanguageToggle';
+import API from '../../api';
 
 const faqs = {
   en: [
@@ -31,9 +32,8 @@ export default function Home() {
   const T = (key) => tx(key, lang);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/dashboard/public')
-      .then(res => res.json())
-      .then(data => { if (data.success) setRealStats(data.data); })
+    API.get('/dashboard/public')
+      .then(res => { if (res.data.success) setRealStats(res.data.data); })
       .catch(() => {});
   }, []);
 
@@ -41,7 +41,7 @@ export default function Home() {
     if (user) {
       if (user.role === 'admin') navigate('/admin/dashboard');
       else if (user.role === 'officer') navigate('/officer/dashboard');
-      else navigate('/citizen/dashboard');
+      else navigate('/citizen/home');
     }
   }, [user, navigate]);
 

@@ -189,7 +189,7 @@ export default function Register() {
       }
 
       login(res.data.data);
-      navigate('/citizen/dashboard');
+      navigate('/citizen/home');
     } catch (err) {
       setError(err.response?.data?.message || (lang === 'hi' ? 'सत्यापन विफल हुआ' : 'Verification failed. Please try again.'));
     }

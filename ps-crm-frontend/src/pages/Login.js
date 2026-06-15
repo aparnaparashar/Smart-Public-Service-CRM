@@ -72,9 +72,7 @@ export default function Login() {
       }
 
       login(res.data.data);
-      if (actualRole === 'admin')        navigate('/admin/dashboard');
-      else if (actualRole === 'officer') navigate('/officer/dashboard');
-      else                               navigate('/citizen/dashboard');
+      navigate('/citizen/home');
     } catch (err) {
       const data = err.response?.data;
       if (data?.pending) {
@@ -262,6 +260,27 @@ export default function Login() {
               )}
             </div>
           )}
+
+          <div style={{ marginTop: 24, borderTop: '1px solid #E2E8F0', paddingTop: 16, textAlign: 'center' }}>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                width: '100%',
+                padding: '11px',
+                border: '1.5px solid #1A237E',
+                background: 'transparent',
+                color: '#1A237E',
+                borderRadius: 8,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                fontFamily: "'DM Sans', sans-serif",
+                transition: 'all 0.2s ease',
+              }}
+            >
+              {lang === 'hi' ? '← मुख्य पृष्ठ पर वापस जाएं' : '← Back to Home Page'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

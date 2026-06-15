@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useLang, tx } from '../../context/LanguageContext';
 import API from '../../api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Sidebar } from './ComplaintsList';
+import HeaderNavbar from '../../components/layout/HeaderNavbar';
 
 const COLORS = ['#0F2557', '#E8620A', '#1B7A3E', '#1565C0', '#8B5CF6'];
 
@@ -110,7 +110,7 @@ export default function AdminDashboard() {
 
   return (
     <div style={styles.layout}>
-      <Sidebar navigate={navigate} logout={logout} user={user} active="dashboard" />
+      <HeaderNavbar activeTab="dashboard" />
 
       <div style={styles.main}>
         {/* Topbar */}
@@ -453,8 +453,8 @@ const modal = {
 };
 
 const styles = {
-  layout:      { display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-  main:        { marginLeft: 260, flex: 1, padding: '32px', background: '#F4F6FB', minHeight: '100vh' },
+  layout:      { background: '#F4F6FB', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
+  main:        { maxWidth: 1240, margin: '0 auto', padding: '40px 40px 60px', background: '#F4F6FB', minHeight: 'calc(100vh - 150px)', boxSizing: 'border-box' },
   topbar:      { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 28, paddingBottom: 20, borderBottom: '1px solid #E8EEF8' },
   pageTitle:   { fontFamily: "'Noto Serif',serif", fontSize: 24, fontWeight: 700, color: '#0F2557' },
   pageSub:     { color: '#6B7FA3', fontSize: 13, marginTop: 4 },
