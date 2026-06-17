@@ -45,6 +45,11 @@ const createTransporter = () => {
 
 const getTransporter = () => {
   if (!transporter) {
+    console.log('[Email] Creating transporter with:');
+    console.log(`[Email] HOST: smtp.gmail.com`);
+    console.log(`[Email] PORT: 587`);
+    console.log(`[Email] EMAIL_USER: ${process.env.EMAIL_USER || '❌ NOT SET'}`);
+    console.log(`[Email] EMAIL_PASS: ${process.env.EMAIL_PASS ? '✅ SET' : '❌ NOT SET'}`);
     transporter = createTransporter();
   }
   return transporter;
@@ -97,6 +102,7 @@ const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
       console.error(
         `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed (${error.code || 'unknown'}): ${error.message}`
       );
+      console.error(`[Email Error] Full error:`, error);
 
       if (isLastAttempt || !isRetryableError) {
         console.error(`[Email Error] ${functionName} failed permanently.`);
