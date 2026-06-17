@@ -14,31 +14,8 @@ const app = express();
 // ─── CORS Configuration (Production-ready) ──────────────────────────────────
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5000',
-      'https://smart-public-service-nfeiuagsj-aparnas-projects-d613b5c2.vercel.app',
-      'https://smart-public-service-crm-puce.vercel.app',
-      process.env.FRONTEND_URL,
-      ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim()) : []),
-    ].filter(Boolean);
-
-    const allowedOriginPatterns = [
-      /^https:\/\/.*\.vercel\.app$/,
-      /^https:\/\/.*\.netlify\.app$/,
-      /^https?:\/\/localhost(?::\d+)?$/,
-    ];
-
-    const isAllowed = !origin ||
-      allowedOrigins.includes(origin) ||
-      allowedOriginPatterns.some((pattern) => pattern.test(origin));
-
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.error(`[CORS] Rejected origin: ${origin}. Allowed origins: ${allowedOrigins.join(', ')}`);
-      callback(new Error('Not allowed by CORS'));
-    }
+    console.log('[CORS] Incoming origin:', origin);
+    callback(null, true);
   },
   credentials: true,
   optionsSuccessStatus: 200,
@@ -46,7 +23,6 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 };
 
-app.options('*', cors(corsOptions));
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
