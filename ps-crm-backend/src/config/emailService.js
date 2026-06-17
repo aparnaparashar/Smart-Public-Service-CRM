@@ -1,81 +1,30 @@
 // ps-crm-backend/src/config/emailService.js
-// FULL FILE — your existing code unchanged, sendOTPEmail added at the bottom
+// Using Resend API (works on Render, no SMTP blocks)
 
-const nodemailer = require('nodemailer');
-const dns = require('dns');
+const { Resend } = require('resend');
 
-// Force IPv4 instead of IPv6
-dns.setDefaultResultOrder('ipv4first');
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// ── Persistent transporter with connection pooling ───────────────────────────
-let transporter = null;
+console.log('[Email] Using Resend API');
+console.log(`[Email] RESEND_API_KEY: ${process.env.RESEND_API_KEY ? '✅ SET' : '❌ NOT SET'}`);
 
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,  // ← Changed from 587 to 465 (SSL instead of TLS)
-    secure: true,
-    family: 4,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-    // ✅ PRODUCTION FIX: Increased timeouts for reliability
-    connectionTimeout: 60000,   // 60 seconds
-    socketTimeout: 60000,       // 60 seconds
-    
-    // ✅ Connection pooling: reuse connections
-    pool: {
-      maxConnections: 5,
-      maxMessages: 100,
-      rateDelta: 500,
-      rateLimit: 20,
-    },
-    
-    logger: true,
-    debug: process.env.NODE_ENV === 'development',
-  });
-};
-
-const getTransporter = () => {
-  if (!transporter) {
-    console.log('[Email] Creating transporter on port 465 (SSL)');
-    console.log(`[Email] EMAIL_USER: ${process.env.EMAIL_USER || '❌ NOT SET'}`);
-    console.log(`[Email] EMAIL_PASS: ${process.env.EMAIL_PASS ? '✅ SET' : '❌ NOT SET'}`);
-    transporter = createTransporter();
-  }
-  return transporter;
-};
-
-// ── Async test with retry logic ────────────────────────────────────────────
-const testEmail = async () => {
-  try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('[Email] ❌ ERROR: EMAIL_USER or EMAIL_PASS not configured');
-      return;
-    }
-    
-    const verifyPromise = getTransporter().verify();
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Verification timeout')), 15000)
-    );
-    
-    await Promise.race([verifyPromise, timeoutPromise]);
-    console.log('[Email] ✅ SMTP connection verified');
-  } catch (error) {
-    console.error('[Email] ⚠️ Connection warning:', error.message);
-  }
-};
-
-setImmediate(() => testEmail());
-
-// ── Reusable retry wrapper for all email operations ──────────────────────────
+// ── Reusable retry wrapper ──────────────────────────────────────────
 const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const info = await getTransporter().sendMail(mailOptions);
+      const response = await resend.emails.send({
+        from: 'PS-CRM <onboarding@resend.dev>',
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+      });
+
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
       console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}`);
-      return info;
+      return { messageId: response.data.id };
     } catch (error) {
       const isLastAttempt = attempt === maxRetries;
       console.error(
@@ -203,7 +152,6 @@ const sendComplaintConfirmation = async (complaint) => {
       ${trackButton(cid)}`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      complaint.citizen.email,
       subject: `✅ Complaint Registered — ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('Complaint Successfully Registered', '#16a34a', '📋', body),
@@ -287,7 +235,6 @@ const sendStatusUpdate = async (complaint) => {
       ${trackButton(cid)}`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      complaint.citizen.email,
       subject: config.subject,
       html:    htmlWrapper(config.bannerTitle, config.accentColor, config.icon, body),
@@ -324,7 +271,6 @@ const sendEscalationAlert = async (complaint) => {
       </div>`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      process.env.EMAIL_USER,
       subject: `🚨 SLA BREACH — Complaint Escalated: ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('⚠️ Complaint SLA Breach — Escalation Alert', '#dc2626', '🚨', body),
@@ -359,7 +305,6 @@ const sendOfficerPendingEmail = async ({ name, email, department }) => {
       </div>`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      email,
       subject: `⏳ Officer Registration Received — Awaiting Admin Approval`,
       html:    htmlWrapper('Registration Under Review', '#d97706', '⏳', body),
@@ -395,7 +340,6 @@ const sendOfficerApprovalEmail = async (officer) => {
       ${loginButton()}`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      officer.email,
       subject: `✅ Officer Account Approved — You Can Now Login`,
       html:    htmlWrapper('Account Approved — Welcome to PS-CRM!', '#16a34a', '🎉', body),
@@ -429,7 +373,6 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
       </div>`;
 
     await sendWithRetry({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      officer.email,
       subject: `❌ Officer Registration Rejected — PS-CRM`,
       html:    htmlWrapper('Account Registration Rejected', '#dc2626', '❌', body),
@@ -440,15 +383,11 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7. OTP Email  ← NEW
+// 7. OTP Email
 // ─────────────────────────────────────────────────────────────────────────────
-// ✅ PRODUCTION FIX: Added retry logic for transient network failures
 const sendOTPEmail = async (email, otp, name = '') => {
-  // Validate email credentials first
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    const error = 'Email credentials (EMAIL_USER or EMAIL_PASS) are not configured in .env file';
-    console.error('[Email Error]', error);
-    throw new Error(error);
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY not configured in .env file');
   }
 
   const body = `
@@ -471,7 +410,6 @@ const sendOTPEmail = async (email, otp, name = '') => {
     <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
 
   return sendWithRetry({
-    from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
     to:      email,
     subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
     html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
