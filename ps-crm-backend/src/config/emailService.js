@@ -105,7 +105,7 @@ const urgencyBadge = (urgency) => {
 // ── Track button ──────────────────────────────────────────────────────────────
 const trackButton = (complaintNumber) => `
 <div style="text-align:center;margin:24px 0 8px;">
-  <a href="http://localhost:3000/citizen/track?id=${complaintNumber}"
+  <a href="https://smart-public-service-nfeiuagsj-aparnas-projects-d613b5c2.vercel.app/citizen/track?id=${complaintNumber}"
      style="background:linear-gradient(135deg,#E8620A,#F47B20);color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">
     🔍 Track Your Complaint
   </a>
@@ -114,7 +114,7 @@ const trackButton = (complaintNumber) => `
 // ── Login button ──────────────────────────────────────────────────────────────
 const loginButton = () => `
 <div style="text-align:center;margin:24px 0 8px;">
-  <a href="http://localhost:3000/login"
+  <a href="https://smart-public-service-nfeiuagsj-aparnas-projects-d613b5c2.vercel.app/login"
      style="background:linear-gradient(135deg,#0F2557,#1a3a7a);color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block;">
     🔐 Login to PS-CRM Portal
   </a>
