@@ -4,16 +4,20 @@
 const { Resend } = require('resend');
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'aparna.tech123@gmail.com';
+const resendOwnerEmail = process.env.RESEND_OWNER_EMAIL || 'aparna.tech123@gmail.com';
 
 console.log('[Email] Using Resend API');
 console.log(`[Email] RESEND_API_KEY: ${process.env.RESEND_API_KEY ? '✅ SET' : '❌ NOT SET'}`);
+console.log(`[Email] RESEND_FROM_EMAIL: ${resendFromEmail}`);
+console.log(`[Email] RESEND_OWNER_EMAIL: ${resendOwnerEmail}`);
 
 // ── Reusable retry wrapper ──────────────────────────────────────────
 const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await resend.emails.send({
-        from: 'PS-CRM <onboarding@resend.dev>',
+        from: resendFromEmail,
         to: mailOptions.to,
         subject: mailOptions.subject,
         html: mailOptions.html,
