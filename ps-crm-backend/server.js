@@ -13,10 +13,7 @@ const app = express();
 
 // ─── CORS Configuration (Production-ready) ──────────────────────────────────
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log('[CORS] Incoming origin:', origin);
-    callback(null, true);
-  },
+  origin: true,
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
