@@ -13,31 +13,25 @@ let transporter = null;
 const createTransporter = () => {
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,  // ← Changed from 587 to 465 (SSL instead of TLS)
+    secure: true,
     family: 4,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    tls: {
-      rejectUnauthorized: false,
-      minVersion: 'TLSv1.2',
-    },
     // ✅ PRODUCTION FIX: Increased timeouts for reliability
-    connectionTimeout: 60000,   // 60 seconds (was 30s)
-    socketTimeout: 60000,       // 60 seconds (was 30s)
-    greetingTimeout: 30000,     // New: 30s for SMTP greeting
+    connectionTimeout: 60000,   // 60 seconds
+    socketTimeout: 60000,       // 60 seconds
     
     // ✅ Connection pooling: reuse connections
     pool: {
-      maxConnections: 5,        // Max 5 concurrent connections
-      maxMessages: 100,         // 100 messages per connection
-      rateDelta: 500,           // ms between messages
-      rateLimit: 20,            // max 20 messages/second
+      maxConnections: 5,
+      maxMessages: 100,
+      rateDelta: 500,
+      rateLimit: 20,
     },
     
-    // ✅ Enhanced logging for debugging
     logger: true,
     debug: process.env.NODE_ENV === 'development',
   });
@@ -45,9 +39,7 @@ const createTransporter = () => {
 
 const getTransporter = () => {
   if (!transporter) {
-    console.log('[Email] Creating transporter with:');
-    console.log(`[Email] HOST: smtp.gmail.com`);
-    console.log(`[Email] PORT: 587`);
+    console.log('[Email] Creating transporter on port 465 (SSL)');
     console.log(`[Email] EMAIL_USER: ${process.env.EMAIL_USER || '❌ NOT SET'}`);
     console.log(`[Email] EMAIL_PASS: ${process.env.EMAIL_PASS ? '✅ SET' : '❌ NOT SET'}`);
     transporter = createTransporter();
@@ -58,30 +50,23 @@ const getTransporter = () => {
 // ── Async test with retry logic ────────────────────────────────────────────
 const testEmail = async () => {
   try {
-    console.log('[Email] Testing SMTP connection with credentials:');
-    console.log(`[Email] User: ${process.env.EMAIL_USER}`);
-    console.log(`[Email] Pass: ${process.env.EMAIL_PASS ? '***configured***' : '❌ MISSING'}`);
-    
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('[Email] ❌ ERROR: EMAIL_USER or EMAIL_PASS not configured in .env file');
+      console.error('[Email] ❌ ERROR: EMAIL_USER or EMAIL_PASS not configured');
       return;
     }
     
-    // Verify connection with timeout
     const verifyPromise = getTransporter().verify();
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Connection verification timeout')), 15000)
+      setTimeout(() => reject(new Error('Verification timeout')), 15000)
     );
     
     await Promise.race([verifyPromise, timeoutPromise]);
-    console.log('[Email] ✅ Connection verified successfully');
+    console.log('[Email] ✅ SMTP connection verified');
   } catch (error) {
-    console.error('[Email] ⚠️ Connection test warning:', error.message);
-    console.error('[Email] This is non-critical. Emails will retry automatically when needed.');
+    console.error('[Email] ⚠️ Connection warning:', error.message);
   }
 };
 
-// Run test asynchronously to prevent startup blocking
 setImmediate(() => testEmail());
 
 // ── Reusable retry wrapper for all email operations ──────────────────────────
@@ -89,33 +74,25 @@ const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const info = await getTransporter().sendMail(mailOptions);
-      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}. Message ID: ${info.messageId}`);
+      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}`);
       return info;
     } catch (error) {
       const isLastAttempt = attempt === maxRetries;
-      const isRetryableError = error.message.includes('timeout') || 
-                              error.message.includes('ETIMEDOUT') ||
-                              error.message.includes('ECONNREFUSED') ||
-                              error.code === 'ESOCKET' ||
-                              error.code === 'ENOTFOUND';
-      
       console.error(
-        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed (${error.code || 'unknown'}): ${error.message}`
+        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed: ${error.message}`
       );
-      console.error(`[Email Error] Full error:`, error);
 
-      if (isLastAttempt || !isRetryableError) {
-        console.error(`[Email Error] ${functionName} failed permanently.`);
+      if (isLastAttempt) {
         throw error;
       }
 
-      // Exponential backoff: 2s, 4s, 8s
       const waitTime = Math.pow(2, attempt) * 1000;
       console.log(`[Email] Retrying in ${waitTime / 1000}s...`);
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
 };
+
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
 const htmlWrapper = (title, accentColor, icon, bodyHtml) => `
