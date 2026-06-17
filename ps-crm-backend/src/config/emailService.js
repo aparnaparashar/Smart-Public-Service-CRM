@@ -2,19 +2,26 @@
 // FULL FILE — your existing code unchanged, sendOTPEmail added at the bottom
 
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force IPv4 instead of IPv6
+dns.setDefaultResultOrder('ipv4first');
 
 const getTransporter = () => {
   return nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    family: 4,
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
-    tls: { 
-      rejectUnauthorized: false 
+    tls: {
+      rejectUnauthorized: false,
     },
-    connectionTimeout: 5000,
-    socketTimeout: 5000,
+    connectionTimeout: 30000,
+    socketTimeout: 30000,
   });
 };
 
