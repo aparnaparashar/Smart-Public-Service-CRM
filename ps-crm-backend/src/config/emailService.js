@@ -7,7 +7,10 @@ const dns = require('dns');
 // Force IPv4 instead of IPv6
 dns.setDefaultResultOrder('ipv4first');
 
-const getTransporter = () => {
+// ── Persistent transporter with connection pooling ───────────────────────────
+let transporter = null;
+
+const createTransporter = () => {
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -19,12 +22,35 @@ const getTransporter = () => {
     },
     tls: {
       rejectUnauthorized: false,
+      minVersion: 'TLSv1.2',
     },
-    connectionTimeout: 30000,
-    socketTimeout: 30000,
+    // ✅ PRODUCTION FIX: Increased timeouts for reliability
+    connectionTimeout: 60000,   // 60 seconds (was 30s)
+    socketTimeout: 60000,       // 60 seconds (was 30s)
+    greetingTimeout: 30000,     // New: 30s for SMTP greeting
+    
+    // ✅ Connection pooling: reuse connections
+    pool: {
+      maxConnections: 5,        // Max 5 concurrent connections
+      maxMessages: 100,         // 100 messages per connection
+      rateDelta: 500,           // ms between messages
+      rateLimit: 20,            // max 20 messages/second
+    },
+    
+    // ✅ Enhanced logging for debugging
+    logger: true,
+    debug: process.env.NODE_ENV === 'development',
   });
 };
 
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = createTransporter();
+  }
+  return transporter;
+};
+
+// ── Async test with retry logic ────────────────────────────────────────────
 const testEmail = async () => {
   try {
     console.log('[Email] Testing SMTP connection with credentials:');
@@ -36,13 +62,54 @@ const testEmail = async () => {
       return;
     }
     
-    await getTransporter().verify();
+    // Verify connection with timeout
+    const verifyPromise = getTransporter().verify();
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection verification timeout')), 15000)
+    );
+    
+    await Promise.race([verifyPromise, timeoutPromise]);
     console.log('[Email] ✅ Connection verified successfully');
   } catch (error) {
-    console.error('[Email] ❌ Connection failed:', error.message);
+    console.error('[Email] ⚠️ Connection test warning:', error.message);
+    console.error('[Email] This is non-critical. Emails will retry automatically when needed.');
   }
 };
-testEmail();
+
+// Run test asynchronously to prevent startup blocking
+setImmediate(() => testEmail());
+
+// ── Reusable retry wrapper for all email operations ──────────────────────────
+const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const info = await getTransporter().sendMail(mailOptions);
+      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}. Message ID: ${info.messageId}`);
+      return info;
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      const isRetryableError = error.message.includes('timeout') || 
+                              error.message.includes('ETIMEDOUT') ||
+                              error.message.includes('ECONNREFUSED') ||
+                              error.code === 'ESOCKET' ||
+                              error.code === 'ENOTFOUND';
+      
+      console.error(
+        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed (${error.code || 'unknown'}): ${error.message}`
+      );
+
+      if (isLastAttempt || !isRetryableError) {
+        console.error(`[Email Error] ${functionName} failed permanently.`);
+        throw error;
+      }
+
+      // Exponential backoff: 2s, 4s, 8s
+      const waitTime = Math.pow(2, attempt) * 1000;
+      console.log(`[Email] Retrying in ${waitTime / 1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+};
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
 const htmlWrapper = (title, accentColor, icon, bodyHtml) => `
@@ -152,15 +219,14 @@ const sendComplaintConfirmation = async (complaint) => {
       </div>
       ${trackButton(cid)}`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      complaint.citizen.email,
       subject: `✅ Complaint Registered — ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('Complaint Successfully Registered', '#16a34a', '📋', body),
-    });
-    console.log(`[Email] Confirmation sent to ${complaint.citizen.email} | ID: ${cid}`);
+    }, 'Complaint confirmation');
   } catch (error) {
-    console.error('[Email Error] Confirmation:', error.message);
+    console.error('[Email Error] Complaint confirmation:', error.message);
   }
 };
 
@@ -237,13 +303,12 @@ const sendStatusUpdate = async (complaint) => {
       </div>` : ''}
       ${trackButton(cid)}`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      complaint.citizen.email,
       subject: config.subject,
       html:    htmlWrapper(config.bannerTitle, config.accentColor, config.icon, body),
-    });
-    console.log(`[Email] Status update (${status}) sent to ${complaint.citizen.email} | ID: ${cid}`);
+    }, `Status update (${status})`);
   } catch (error) {
     console.error('[Email Error] Status update:', error.message);
   }
@@ -275,13 +340,12 @@ const sendEscalationAlert = async (complaint) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      process.env.EMAIL_USER,
       subject: `🚨 SLA BREACH — Complaint Escalated: ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('⚠️ Complaint SLA Breach — Escalation Alert', '#dc2626', '🚨', body),
-    });
-    console.log(`[Email] Escalation alert sent to admin | ID: ${cid}`);
+    }, 'Escalation alert to admin');
   } catch (error) {
     console.error('[Email Error] Escalation:', error.message);
   }
@@ -311,13 +375,12 @@ const sendOfficerPendingEmail = async ({ name, email, department }) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      email,
       subject: `⏳ Officer Registration Received — Awaiting Admin Approval`,
       html:    htmlWrapper('Registration Under Review', '#d97706', '⏳', body),
-    });
-    console.log(`[Email] Pending notice sent to ${email}`);
+    }, 'Officer pending notice');
   } catch (error) {
     console.error('[Email Error] Officer pending:', error.message);
   }
@@ -348,13 +411,12 @@ const sendOfficerApprovalEmail = async (officer) => {
       </div>
       ${loginButton()}`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      officer.email,
       subject: `✅ Officer Account Approved — You Can Now Login`,
       html:    htmlWrapper('Account Approved — Welcome to PS-CRM!', '#16a34a', '🎉', body),
-    });
-    console.log(`[Email] Approval email sent to ${officer.email}`);
+    }, 'Officer approval email');
   } catch (error) {
     console.error('[Email Error] Officer approval:', error.message);
   }
@@ -383,13 +445,12 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
+    await sendWithRetry({
       from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
       to:      officer.email,
       subject: `❌ Officer Registration Rejected — PS-CRM`,
       html:    htmlWrapper('Account Registration Rejected', '#dc2626', '❌', body),
-    });
-    console.log(`[Email] Rejection email sent to ${officer.email}`);
+    }, 'Officer rejection email');
   } catch (error) {
     console.error('[Email Error] Officer rejection:', error.message);
   }
@@ -398,47 +459,40 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // 7. OTP Email  ← NEW
 // ─────────────────────────────────────────────────────────────────────────────
+// ✅ PRODUCTION FIX: Added retry logic for transient network failures
 const sendOTPEmail = async (email, otp, name = '') => {
-  try {
-    // Validate email credentials first
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      throw new Error('Email credentials (EMAIL_USER or EMAIL_PASS) are not configured in .env file');
-    }
-
-    const body = `
-      <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
-      <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
-        Use the OTP below to complete your registration on PS-CRM.
-        This code is valid for <strong>10 minutes</strong> and can only be used once.
-      </p>
-      <div style="background:#f0f4f8;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;border:1px solid #d8e2f0;">
-        <p style="color:#3A4E70;font-size:12px;font-weight:700;letter-spacing:2px;margin:0 0 12px;text-transform:uppercase;">Your Verification Code</p>
-        <div style="font-size:42px;font-weight:800;letter-spacing:14px;color:#0F2557;font-family:'Courier New',monospace;">
-          ${otp}
-        </div>
-      </div>
-      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px;margin:16px 0;">
-        <p style="margin:0;font-size:13px;color:#92400e;">
-          ⚠️ Do not share this OTP with anyone. PS-CRM will never ask for your OTP.
-        </p>
-      </div>
-      <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
-
-    const mailOptions = {
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
-      to:      email,
-      subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
-      html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
-    };
-
-    console.log(`[Email] Attempting to send OTP to ${email}`);
-    const info = await getTransporter().sendMail(mailOptions);
-    console.log(`[Email] OTP sent successfully to ${email}. Message ID: ${info.messageId}`);
-  } catch (error) {
-    console.error('[Email Error] OTP sending failed:', error.message);
-    console.error('[Email Error] Stack:', error.stack);
-    throw error;
+  // Validate email credentials first
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    const error = 'Email credentials (EMAIL_USER or EMAIL_PASS) are not configured in .env file';
+    console.error('[Email Error]', error);
+    throw new Error(error);
   }
+
+  const body = `
+    <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
+    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
+      Use the OTP below to complete your registration on PS-CRM.
+      This code is valid for <strong>10 minutes</strong> and can only be used once.
+    </p>
+    <div style="background:#f0f4f8;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;border:1px solid #d8e2f0;">
+      <p style="color:#3A4E70;font-size:12px;font-weight:700;letter-spacing:2px;margin:0 0 12px;text-transform:uppercase;">Your Verification Code</p>
+      <div style="font-size:42px;font-weight:800;letter-spacing:14px;color:#0F2557;font-family:'Courier New',monospace;">
+        ${otp}
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px;margin:16px 0;">
+      <p style="margin:0;font-size:13px;color:#92400e;">
+        ⚠️ Do not share this OTP with anyone. PS-CRM will never ask for your OTP.
+      </p>
+    </div>
+    <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
+
+  return sendWithRetry({
+    from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    to:      email,
+    subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
+    html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
+  }, 'OTP email', 3);
 };
 
 module.exports = {
