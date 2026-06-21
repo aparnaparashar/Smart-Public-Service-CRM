@@ -1,39 +1,98 @@
 // ps-crm-backend/src/config/emailService.js
-// Using Resend API (works on Render, no SMTP blocks)
+// Using Nodemailer SMTP transport
 
-const { Resend } = require('resend');
+const nodemailer = require('nodemailer');
+const dns = require('dns');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const resendFromEmail = process.env.RESEND_FROM_EMAIL || 'aparna.tech123@gmail.com';
-const resendOwnerEmail = process.env.RESEND_OWNER_EMAIL || 'aparna.tech123@gmail.com';
+// Force IPv4 instead of IPv6
+dns.setDefaultResultOrder('ipv4first');
 
-console.log('[Email] Using Resend API');
-console.log(`[Email] RESEND_API_KEY: ${process.env.RESEND_API_KEY ? '✅ SET' : '❌ NOT SET'}`);
-console.log(`[Email] RESEND_FROM_EMAIL: ${resendFromEmail}`);
-console.log(`[Email] RESEND_OWNER_EMAIL: ${resendOwnerEmail}`);
+const requiredEmailEnv = ['EMAIL_USER', 'EMAIL_PASS'];
+const missingEmailEnv = requiredEmailEnv.filter(key => !process.env[key]);
+if (missingEmailEnv.length) {
+  console.error(`[Email Error] Missing environment variables: ${missingEmailEnv.join(', ')}`);
+  throw new Error(`Missing environment variables: ${missingEmailEnv.join(', ')}`);
+}
 
-// ── Reusable retry wrapper ──────────────────────────────────────────
+let transporter = null;
+let transporterVerified = false;
+
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    family: 4,
+    defaults: {
+      from: process.env.EMAIL_USER,
+    },
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false,
+      minVersion: 'TLSv1.2',
+    },
+    connectionTimeout: 60000,
+    socketTimeout: 60000,
+    greetingTimeout: 30000,
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 500,
+    rateLimit: 20,
+    logger: true,
+    debug: process.env.NODE_ENV === 'development',
+  });
+};
+
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = createTransporter();
+  }
+  return transporter;
+};
+
 const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
+  const transporter = getTransporter();
+
+  if (!transporterVerified) {
+    try {
+      await transporter.verify();
+      transporterVerified = true;
+      console.log('[Email] SMTP transporter verified successfully');
+    } catch (verifyError) {
+      console.error('[Email Error] SMTP verification failed:', verifyError.code || 'UNKNOWN', verifyError.message);
+      console.error('[Email Error] Full verification error:', verifyError);
+      throw verifyError;
+    }
+  }
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const response = await resend.emails.send({
-        from: resendFromEmail,
-        to: mailOptions.to,
-        subject: mailOptions.subject,
-        html: mailOptions.html,
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
-      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}`);
-      return { messageId: response.data.id };
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}. Message ID: ${info.messageId}`);
+      return info;
     } catch (error) {
       const isLastAttempt = attempt === maxRetries;
+      const code = error.code || 'UNKNOWN';
+      const host = error.host || 'smtp.gmail.com';
       console.error(
-        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed: ${error.message}`
+        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed (${code}): ${error.message}`
       );
+      console.error('[Email Error] SMTP host:', host);
+      console.error('[Email Error] Full error:', error);
+
+      if (code === 'ETIMEDOUT') {
+        console.error('[Email Error] ETIMEDOUT: outbound SMTP traffic may be blocked by Render or the provider. Verify network/port access.');
+      } else if (code === 'ECONNREFUSED') {
+        console.error('[Email Error] ECONNREFUSED: connection refused by SMTP host. Confirm the host/port and provider access.');
+      } else if (code === 'EAUTH') {
+        console.error('[Email Error] EAUTH: authentication failed. Check EMAIL_USER, EMAIL_PASS, and Gmail App Password configuration.');
+      } else if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
+        console.error('[Email Error] DNS error: unable to resolve SMTP host. Check DNS resolution and network connectivity.');
+      }
 
       if (isLastAttempt) {
         throw error;
@@ -390,10 +449,6 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
 // 7. OTP Email
 // ─────────────────────────────────────────────────────────────────────────────
 const sendOTPEmail = async (email, otp, name = '') => {
-  if (!process.env.RESEND_API_KEY) {
-    throw new Error('RESEND_API_KEY not configured in .env file');
-  }
-
   const body = `
     <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
     <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
