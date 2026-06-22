@@ -11,14 +11,38 @@ connectDB();
 
 const app = express();
 
-// ─── Middleware (always before routes) ───────────────────────────────────────
-app.use(cors());
+// ─── CORS Configuration (Production-ready) ──────────────────────────────────
+const corsOptions = {
+  origin: true,
+  credentials: true,
+  optionsSuccessStatus: 200,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
+
+// ─── Request timeout middleware (prevent hanging requests) ──────────────────
+app.use((req, res, next) => {
+  req.setTimeout(30000); // 30 seconds
+  res.setTimeout(30000);
+  next();
+});
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
   res.json({ message: 'PS-CRM API is running!' });
+});
+
+// ─── Health check with DB status ────────────────────────────────────────────
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    backend: 'running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // ─── Routes ───────────────────────────────────────────────────────────────────
@@ -36,12 +60,22 @@ app.use('/api/feedback',   feedbackRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/heatmap', heatmapRoutes);
 
+// ─── Error handling middleware ─────────────────────────────────────────────
+app.use((err, req, res, next) => {
+  console.error('[Error]', err.message);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal Server Error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+  });
+});
+
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 const { startWhatsAppBot } = require('./src/config/whatsappBot');
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   startSLAService();
   startWhatsAppBot();  // WhatsApp bot enabled with QR code
 });

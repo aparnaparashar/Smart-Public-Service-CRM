@@ -1,5 +1,5 @@
 // ps-crm-backend/src/config/emailService.js
-// FULL FILE — your existing code unchanged, sendOTPEmail added at the bottom
+// Using Nodemailer SMTP transport
 
 const nodemailer = require('nodemailer');
 const dns = require('dns');
@@ -7,42 +7,104 @@ const dns = require('dns');
 // Force IPv4 instead of IPv6
 dns.setDefaultResultOrder('ipv4first');
 
-const getTransporter = () => {
+const requiredEmailEnv = ['EMAIL_USER', 'EMAIL_PASS'];
+const missingEmailEnv = requiredEmailEnv.filter(key => !process.env[key]);
+if (missingEmailEnv.length) {
+  console.error(`[Email Error] Missing environment variables: ${missingEmailEnv.join(', ')}`);
+  throw new Error(`Missing environment variables: ${missingEmailEnv.join(', ')}`);
+}
+
+let transporter = null;
+let transporterVerified = false;
+
+const createTransporter = () => {
   return nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     family: 4,
+    defaults: {
+      from: process.env.EMAIL_USER,
+    },
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
     tls: {
       rejectUnauthorized: false,
+      minVersion: 'TLSv1.2',
     },
-    connectionTimeout: 30000,
-    socketTimeout: 30000,
+    connectionTimeout: 60000,
+    socketTimeout: 60000,
+    greetingTimeout: 30000,
+    pool: true,
+    maxConnections: 5,
+    maxMessages: 100,
+    rateDelta: 500,
+    rateLimit: 20,
+    logger: true,
+    debug: process.env.NODE_ENV === 'development',
   });
 };
 
-const testEmail = async () => {
-  try {
-    console.log('[Email] Testing SMTP connection with credentials:');
-    console.log(`[Email] User: ${process.env.EMAIL_USER}`);
-    console.log(`[Email] Pass: ${process.env.EMAIL_PASS ? '***configured***' : '❌ MISSING'}`);
-    
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.error('[Email] ❌ ERROR: EMAIL_USER or EMAIL_PASS not configured in .env file');
-      return;
+const getTransporter = () => {
+  if (!transporter) {
+    transporter = createTransporter();
+  }
+  return transporter;
+};
+
+const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
+  const transporter = getTransporter();
+
+  if (!transporterVerified) {
+    try {
+      await transporter.verify();
+      transporterVerified = true;
+      console.log('[Email] SMTP transporter verified successfully');
+    } catch (verifyError) {
+      console.error('[Email Error] SMTP verification failed:', verifyError.code || 'UNKNOWN', verifyError.message);
+      console.error('[Email Error] Full verification error:', verifyError);
+      throw verifyError;
     }
-    
-    await getTransporter().verify();
-    console.log('[Email] ✅ Connection verified successfully');
-  } catch (error) {
-    console.error('[Email] ❌ Connection failed:', error.message);
+  }
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`[Email] ✅ ${functionName} sent to ${mailOptions.to}. Message ID: ${info.messageId}`);
+      return info;
+    } catch (error) {
+      const isLastAttempt = attempt === maxRetries;
+      const code = error.code || 'UNKNOWN';
+      const host = error.host || 'smtp.gmail.com';
+      console.error(
+        `[Email Error] ${functionName} attempt ${attempt}/${maxRetries} failed (${code}): ${error.message}`
+      );
+      console.error('[Email Error] SMTP host:', host);
+      console.error('[Email Error] Full error:', error);
+
+      if (code === 'ETIMEDOUT') {
+        console.error('[Email Error] ETIMEDOUT: outbound SMTP traffic may be blocked by Render or the provider. Verify network/port access.');
+      } else if (code === 'ECONNREFUSED') {
+        console.error('[Email Error] ECONNREFUSED: connection refused by SMTP host. Confirm the host/port and provider access.');
+      } else if (code === 'EAUTH') {
+        console.error('[Email Error] EAUTH: authentication failed. Check EMAIL_USER, EMAIL_PASS, and Gmail App Password configuration.');
+      } else if (code === 'ENOTFOUND' || code === 'EAI_AGAIN') {
+        console.error('[Email Error] DNS error: unable to resolve SMTP host. Check DNS resolution and network connectivity.');
+      }
+
+      if (isLastAttempt) {
+        throw error;
+      }
+
+      const waitTime = Math.pow(2, attempt) * 1000;
+      console.log(`[Email] Retrying in ${waitTime / 1000}s...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
   }
 };
-testEmail();
+
 
 // ── Shared HTML wrapper ───────────────────────────────────────────────────────
 const htmlWrapper = (title, accentColor, icon, bodyHtml) => `
@@ -152,15 +214,13 @@ const sendComplaintConfirmation = async (complaint) => {
       </div>
       ${trackButton(cid)}`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      complaint.citizen.email,
       subject: `✅ Complaint Registered — ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('Complaint Successfully Registered', '#16a34a', '📋', body),
-    });
-    console.log(`[Email] Confirmation sent to ${complaint.citizen.email} | ID: ${cid}`);
+    }, 'Complaint confirmation');
   } catch (error) {
-    console.error('[Email Error] Confirmation:', error.message);
+    console.error('[Email Error] Complaint confirmation:', error.message);
   }
 };
 
@@ -237,13 +297,11 @@ const sendStatusUpdate = async (complaint) => {
       </div>` : ''}
       ${trackButton(cid)}`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      complaint.citizen.email,
       subject: config.subject,
       html:    htmlWrapper(config.bannerTitle, config.accentColor, config.icon, body),
-    });
-    console.log(`[Email] Status update (${status}) sent to ${complaint.citizen.email} | ID: ${cid}`);
+    }, `Status update (${status})`);
   } catch (error) {
     console.error('[Email Error] Status update:', error.message);
   }
@@ -275,13 +333,11 @@ const sendEscalationAlert = async (complaint) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      process.env.EMAIL_USER,
       subject: `🚨 SLA BREACH — Complaint Escalated: ${complaint.title} | ID: ${cid}`,
       html:    htmlWrapper('⚠️ Complaint SLA Breach — Escalation Alert', '#dc2626', '🚨', body),
-    });
-    console.log(`[Email] Escalation alert sent to admin | ID: ${cid}`);
+    }, 'Escalation alert to admin');
   } catch (error) {
     console.error('[Email Error] Escalation:', error.message);
   }
@@ -311,13 +367,11 @@ const sendOfficerPendingEmail = async ({ name, email, department }) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      email,
       subject: `⏳ Officer Registration Received — Awaiting Admin Approval`,
       html:    htmlWrapper('Registration Under Review', '#d97706', '⏳', body),
-    });
-    console.log(`[Email] Pending notice sent to ${email}`);
+    }, 'Officer pending notice');
   } catch (error) {
     console.error('[Email Error] Officer pending:', error.message);
   }
@@ -348,13 +402,11 @@ const sendOfficerApprovalEmail = async (officer) => {
       </div>
       ${loginButton()}`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      officer.email,
       subject: `✅ Officer Account Approved — You Can Now Login`,
       html:    htmlWrapper('Account Approved — Welcome to PS-CRM!', '#16a34a', '🎉', body),
-    });
-    console.log(`[Email] Approval email sent to ${officer.email}`);
+    }, 'Officer approval email');
   } catch (error) {
     console.error('[Email Error] Officer approval:', error.message);
   }
@@ -383,62 +435,44 @@ const sendOfficerRejectionEmail = async (officer, reason) => {
         </p>
       </div>`;
 
-    await getTransporter().sendMail({
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
+    await sendWithRetry({
       to:      officer.email,
       subject: `❌ Officer Registration Rejected — PS-CRM`,
       html:    htmlWrapper('Account Registration Rejected', '#dc2626', '❌', body),
-    });
-    console.log(`[Email] Rejection email sent to ${officer.email}`);
+    }, 'Officer rejection email');
   } catch (error) {
     console.error('[Email Error] Officer rejection:', error.message);
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 7. OTP Email  ← NEW
+// 7. OTP Email
 // ─────────────────────────────────────────────────────────────────────────────
 const sendOTPEmail = async (email, otp, name = '') => {
-  try {
-    // Validate email credentials first
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      throw new Error('Email credentials (EMAIL_USER or EMAIL_PASS) are not configured in .env file');
-    }
-
-    const body = `
-      <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
-      <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
-        Use the OTP below to complete your registration on PS-CRM.
-        This code is valid for <strong>10 minutes</strong> and can only be used once.
+  const body = `
+    <p style="color:#333;font-size:15px;margin:0 0 16px;">Dear <strong>${name || 'User'}</strong>,</p>
+    <p style="color:#555;font-size:14px;line-height:1.6;margin:0 0 24px;">
+      Use the OTP below to complete your registration on PS-CRM.
+      This code is valid for <strong>10 minutes</strong> and can only be used once.
+    </p>
+    <div style="background:#f0f4f8;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;border:1px solid #d8e2f0;">
+      <p style="color:#3A4E70;font-size:12px;font-weight:700;letter-spacing:2px;margin:0 0 12px;text-transform:uppercase;">Your Verification Code</p>
+      <div style="font-size:42px;font-weight:800;letter-spacing:14px;color:#0F2557;font-family:'Courier New',monospace;">
+        ${otp}
+      </div>
+    </div>
+    <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px;margin:16px 0;">
+      <p style="margin:0;font-size:13px;color:#92400e;">
+        ⚠️ Do not share this OTP with anyone. PS-CRM will never ask for your OTP.
       </p>
-      <div style="background:#f0f4f8;border-radius:12px;padding:28px;text-align:center;margin-bottom:24px;border:1px solid #d8e2f0;">
-        <p style="color:#3A4E70;font-size:12px;font-weight:700;letter-spacing:2px;margin:0 0 12px;text-transform:uppercase;">Your Verification Code</p>
-        <div style="font-size:42px;font-weight:800;letter-spacing:14px;color:#0F2557;font-family:'Courier New',monospace;">
-          ${otp}
-        </div>
-      </div>
-      <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px;margin:16px 0;">
-        <p style="margin:0;font-size:13px;color:#92400e;">
-          ⚠️ Do not share this OTP with anyone. PS-CRM will never ask for your OTP.
-        </p>
-      </div>
-      <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
+    </div>
+    <p style="color:#aaa;font-size:12px;margin:16px 0 0;">If you did not request this, you can safely ignore this email.</p>`;
 
-    const mailOptions = {
-      from:    `"PS-CRM System" <${process.env.EMAIL_USER}>`,
-      to:      email,
-      subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
-      html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
-    };
-
-    console.log(`[Email] Attempting to send OTP to ${email}`);
-    const info = await getTransporter().sendMail(mailOptions);
-    console.log(`[Email] OTP sent successfully to ${email}. Message ID: ${info.messageId}`);
-  } catch (error) {
-    console.error('[Email Error] OTP sending failed:', error.message);
-    console.error('[Email Error] Stack:', error.stack);
-    throw error;
-  }
+  return sendWithRetry({
+    to:      email,
+    subject: `🔐 Your PS-CRM Verification Code: ${otp}`,
+    html:    htmlWrapper('Email Verification', '#0F2557', '🔐', body),
+  }, 'OTP email', 3);
 };
 
 module.exports = {
