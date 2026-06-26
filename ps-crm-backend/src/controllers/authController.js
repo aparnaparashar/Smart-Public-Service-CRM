@@ -56,15 +56,23 @@ const sendOTPHandler = async (req, res) => {
         ),
       ]);
 
-      await timed;
-      console.timeEnd(`[Auth] sendOTPEmail(${email})`);
-      console.log(`[Auth] OTP sent successfully to ${email}`);
+      // Important: do not block the HTTP response on email/SMPP latency.
+      // Fire-and-forget email sending so the client doesn't hit infra timeouts.
+      timed
+        .then(() => {
+          console.timeEnd(`[Auth] sendOTPEmail(${email})`);
+          console.log(`[Auth] OTP sent successfully to ${email}`);
+        })
+        .catch((emailError) => {
+          console.timeEnd(`[Auth] sendOTPEmail(${email})`);
+          console.error(`[Auth] Failed to send OTP email to ${email}:`, emailError.message);
+        });
     } catch (emailError) {
-      console.error(`[Auth] Failed to send OTP email to ${email}:`, emailError.message);
-      throw new Error(`Email sending failed: ${emailError.message}`);
+      // If Promise.race setup fails synchronously, still respond.
+      console.error(`[Auth] Failed to initiate OTP email sending to ${email}:`, emailError.message);
     }
 
-    res.json({ success: true, message: 'OTP sent successfully. Please check your email.' });
+    res.json({ success: true, message: 'OTP stored successfully. Please check your email (sending may take a moment).' });
   } catch (error) {
     console.error('[Auth] sendOTP error:', error.message, error.stack);
     res.status(500).json({ success: false, message: `Failed to send OTP: ${error.message}` });
