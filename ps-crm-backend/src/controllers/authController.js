@@ -42,7 +42,22 @@ const sendOTPHandler = async (req, res) => {
     console.log(`[Auth] OTP generated for ${email}: ${otp}`);
     
     try {
-      await sendOTPEmail(email, otp, name);
+      // Hard cap so /send-otp never keeps the client waiting too long.
+      // Note: this guards the HTTP response time; the underlying SMTP attempt may still complete later.
+      const TIME_LIMIT_MS = 20000; // 20s server-side guard
+
+      console.time(`[Auth] sendOTPEmail(${email})`);
+      const emailPromise = sendOTPEmail(email, otp, name);
+
+      const timed = Promise.race([
+        emailPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Email OTP send timed out')), TIME_LIMIT_MS)
+        ),
+      ]);
+
+      await timed;
+      console.timeEnd(`[Auth] sendOTPEmail(${email})`);
       console.log(`[Auth] OTP sent successfully to ${email}`);
     } catch (emailError) {
       console.error(`[Auth] Failed to send OTP email to ${email}:`, emailError.message);

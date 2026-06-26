@@ -7,7 +7,7 @@ console.log('[API] Using backend URL:', API_BASE_URL);
 
 const API = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000, // 30 second timeout
+  timeout: 60000, // 60 second timeout (OTP/email can be slow in production)
 });
 
 API.interceptors.request.use((req) => {
