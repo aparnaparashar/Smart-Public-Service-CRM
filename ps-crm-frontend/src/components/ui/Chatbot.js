@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 
-const API = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API = (process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL || '/api').replace(/\/$/, '');
 
 // ── Unique session ID ──────────────────────────────────────────────────────────
 function getSessionId() {

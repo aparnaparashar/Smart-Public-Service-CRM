@@ -1,7 +1,14 @@
 import axios from 'axios';
 
-// ✅ PRODUCTION FIX: Use environment variable for backend URL
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const resolveApiBaseUrl = () => {
+  const configuredUrl = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL;
+  if (configuredUrl && configuredUrl.trim()) {
+    return configuredUrl.trim().replace(/\/$/, '');
+  }
+  return '/api';
+};
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 console.log('[API] Using backend URL:', API_BASE_URL);
 
