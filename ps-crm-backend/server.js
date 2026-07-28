@@ -12,8 +12,22 @@ connectDB();
 const app = express();
 
 // ─── CORS Configuration (Production-ready) ──────────────────────────────────
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5000',
+  'https://smart-public-service-2xgvo3rha-aparnas-projects-d613b5c2.vercel.app',
+  'https://smart-public-service-jzk8m8dsl-aparnas-projects-d613b5c2.vercel.app',
+];
+
 const corsOptions = {
-  origin: true,
+  origin: (origin, callback) => {
+    const isAllowedOrigin = !origin || allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
+    if (isAllowedOrigin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -22,11 +36,21 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const isAllowedOrigin = !origin || allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
+
+  if (isAllowedOrigin && origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Vary', 'Origin');
+  }
+
   if (req.method === 'OPTIONS') {
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
     return res.sendStatus(200);
   }
+
   next();
 });
 app.use(express.json({ limit: '20mb' }));
