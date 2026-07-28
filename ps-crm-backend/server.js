@@ -15,8 +15,9 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5000',
-  'https://smart-public-service-2xgvo3rha-aparnas-projects-d613b5c2.vercel.app',
-  'https://smart-public-service-jzk8m8dsl-aparnas-projects-d613b5c2.vercel.app',
+  'http://localhost:8080',
+  'http://127.0.0.1:8080',
+  
 ];
 
 const corsOptions = {
@@ -102,7 +103,7 @@ app.use((err, req, res, next) => {
 });
 
 // ─── Start server ─────────────────────────────────────────────────────────────
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 const { startWhatsAppBot } = require('./src/config/whatsappBot');
 
 app.listen(PORT, () => {
