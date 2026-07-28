@@ -17,43 +17,44 @@ const allowedOrigins = [
   'http://localhost:5000',
   'http://localhost:8080',
   'http://127.0.0.1:8080',
-  
+  'https://smart-public-service-crm-rouge.vercel.app',
 ];
 
-const corsOptions = {
+// Helper to check if an origin is allowed
+function isOriginAllowed(origin) {
+  if (!origin) return true; // Allow non-browser requests (e.g. Postman, curl)
+  return allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
+}
+
+// Handle OPTIONS preflight BEFORE any other middleware to guarantee headers
+// This prevents Express 5 async error handling from swallowing preflight responses
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    res.header('Access-Control-Max-Age', '86400');
+    res.header('Vary', 'Origin');
+  }
+  return res.sendStatus(204);
+});
+
+// Apply CORS middleware for all other requests
+app.use(cors({
   origin: (origin, callback) => {
-    const isAllowedOrigin = !origin || allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
-    if (isAllowedOrigin) {
+    if (isOriginAllowed(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false); // Reject silently instead of throwing (prevents Express 5 error propagation)
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200,
+  optionsSuccessStatus: 204,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-};
-
-app.use(cors(corsOptions));
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  const isAllowedOrigin = !origin || allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
-
-  if (isAllowedOrigin && origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Credentials', 'true');
-    res.header('Vary', 'Origin');
-  }
-
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
-    return res.sendStatus(200);
-  }
-
-  next();
-});
+}));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
