@@ -2,10 +2,23 @@ import axios from 'axios';
 
 const resolveApiBaseUrl = () => {
   const configuredUrl = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL;
-  if (configuredUrl && configuredUrl.trim()) {
-    return configuredUrl.trim().replace(/\/$/, '');
+  const trimmed = configuredUrl?.trim() || '';
+
+  if (!trimmed) {
+    return '/api';
   }
-  return '/api';
+
+  const withoutTrailingSlash = trimmed.replace(/\/+$/, '');
+
+  if (/^https?:\/\//i.test(withoutTrailingSlash) || withoutTrailingSlash.startsWith('/')) {
+    return withoutTrailingSlash;
+  }
+
+  if (/^(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/i.test(withoutTrailingSlash)) {
+    return `http://${withoutTrailingSlash}`;
+  }
+
+  return `https://${withoutTrailingSlash}`;
 };
 
 const API_BASE_URL = resolveApiBaseUrl();
