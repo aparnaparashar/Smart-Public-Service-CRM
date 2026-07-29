@@ -6,8 +6,6 @@ const connectDB       = require('./src/config/db');
 const { startSLAService } = require('./src/config/slaService');
 
 
-connectDB();
-
 const app = express();
 
 // ─── CORS Configuration (Production-ready) ──────────────────────────────────
@@ -107,9 +105,26 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8080;
 const { startWhatsAppBot } = require('./src/config/whatsappBot');
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+
+  // Connect to MongoDB AFTER the server is listening, so Railway sees a
+  // healthy port binding even if the DB takes a moment to connect.
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error('[Startup] MongoDB connection failed:', err.message);
+    // Don't exit — the server stays up so Railway doesn't restart-loop.
+    // Routes that need the DB will return errors until it reconnects.
+  }
+
   startSLAService();
-  startWhatsAppBot();  // WhatsApp bot enabled with QR code
+
+  // WhatsApp bot is best-effort — don't let it crash the HTTP server.
+  try {
+    startWhatsAppBot();
+  } catch (err) {
+    console.error('[Startup] WhatsApp bot failed to start:', err.message);
+  }
 });
