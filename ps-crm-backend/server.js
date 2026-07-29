@@ -2,7 +2,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const express = require('express');
-const cors    = require('cors');
 const connectDB       = require('./src/config/db');
 const { startSLAService } = require('./src/config/slaService');
 
@@ -26,35 +25,28 @@ function isOriginAllowed(origin) {
   return allowedOrigins.includes(origin) || /\.vercel\.app$/i.test(origin);
 }
 
-// Handle OPTIONS preflight BEFORE any other middleware to guarantee headers
-// This prevents Express 5 async error handling from swallowing preflight responses
-app.options('*', (req, res) => {
+// ─── Manual CORS middleware (replaces `cors` package for Express 5 reliability) ─
+// Express 5 changed how wildcard OPTIONS and error propagation work,
+// so we set CORS headers ourselves for maximum control.
+app.use((req, res, next) => {
   const origin = req.headers.origin;
+
   if (isOriginAllowed(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Origin', origin || '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Max-Age', '86400');
-    res.header('Vary', 'Origin');
   }
-  return res.sendStatus(204);
+
+  // Respond to preflight immediately — do NOT let it fall through to routes
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
 });
 
-// Apply CORS middleware for all other requests
-app.use(cors({
-  origin: (origin, callback) => {
-    if (isOriginAllowed(origin)) {
-      callback(null, true);
-    } else {
-      callback(null, false); // Reject silently instead of throwing (prevents Express 5 error propagation)
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 204,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-}));
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
@@ -97,6 +89,14 @@ app.use('/api/heatmap', heatmapRoutes);
 // ─── Error handling middleware ─────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error('[Error]', err.message);
+
+  // Ensure CORS headers are present even on error responses
+  const origin = req.headers.origin;
+  if (isOriginAllowed(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+    res.header('Access-Control-Allow-Credentials', 'true');
+  }
+
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
     ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),

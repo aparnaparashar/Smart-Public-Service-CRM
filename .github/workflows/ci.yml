@@ -1,0 +1,53 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ps-crm-frontend
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './ps-crm-frontend/package-lock.json'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      - name: Build Frontend
+        run: npm run build
+        env:
+          CI: false # Prevents build from failing on warnings
+
+  test-backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ps-crm-backend
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './ps-crm-backend/package-lock.json'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
+      # If you add test scripts to package.json later, uncomment the next line
+      # - name: Run Tests
+      #   run: npm test

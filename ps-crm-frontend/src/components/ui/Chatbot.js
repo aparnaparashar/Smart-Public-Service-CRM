@@ -2,7 +2,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 
-const API = (process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL || '/api').replace(/\/$/, '');
+const resolveApiUrl = () => {
+  const raw = (process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL || '/api').replace(/\/$/, '');
+  // In production, force the proxy path to avoid CORS
+  if (process.env.NODE_ENV === 'production' && /^https?:\/\//i.test(raw)) return '/api';
+  return raw;
+};
+const API = resolveApiUrl();
+
 
 // ── Unique session ID ──────────────────────────────────────────────────────────
 function getSessionId() {
