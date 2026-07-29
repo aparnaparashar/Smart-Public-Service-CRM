@@ -105,7 +105,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 8080;
 const { startWhatsAppBot } = require('./src/config/whatsappBot');
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 

@@ -10,8 +10,7 @@ dns.setDefaultResultOrder('ipv4first');
 const requiredEmailEnv = ['EMAIL_USER', 'EMAIL_PASS'];
 const missingEmailEnv = requiredEmailEnv.filter(key => !process.env[key]);
 if (missingEmailEnv.length) {
-  console.error(`[Email Error] Missing environment variables: ${missingEmailEnv.join(', ')}`);
-  throw new Error(`Missing environment variables: ${missingEmailEnv.join(', ')}`);
+  console.warn(`[Email Warning] Missing environment variables: ${missingEmailEnv.join(', ')}. Email features will be disabled until configured.`);
 }
 
 let transporter = null;
@@ -55,6 +54,11 @@ const getTransporter = () => {
 };
 
 const sendWithRetry = async (mailOptions, functionName, maxRetries = 3) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error(`[Email Error] Cannot send email via ${functionName}: EMAIL_USER or EMAIL_PASS environment variables are missing on the server.`);
+    return { success: false, error: 'Email service not configured on server' };
+  }
+
   const transporter = getTransporter();
 
   if (!transporterVerified) {

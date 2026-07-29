@@ -13,7 +13,7 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Not authorized, no token' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'ps_crm_jwt_secret_default_key');
     req.user = await User.findById(decoded.id).select('-password');
     next();
   } catch (error) {

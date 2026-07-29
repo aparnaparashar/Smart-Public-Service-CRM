@@ -12,7 +12,7 @@ const { storeOTP, verifyOTP, clearOTP } = require('../config/otpService');
 
 // Generate JWT token
 const generateToken = (id, role) => {
-  return jwt.sign({ id, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  return jwt.sign({ id, role }, process.env.JWT_SECRET || 'ps_crm_jwt_secret_default_key', { expiresIn: '7d' });
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
