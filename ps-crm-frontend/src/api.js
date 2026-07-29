@@ -4,17 +4,6 @@ const resolveApiBaseUrl = () => {
   const configuredUrl = process.env.REACT_APP_API_URL || process.env.REACT_APP_API_BASE_URL;
   const trimmed = configuredUrl?.trim() || '';
 
-  // In production builds on Vercel, ALWAYS use the /api proxy path
-  // to avoid cross-origin requests (CORS). The Vercel rewrite in
-  // vercel.json proxies /api/* to the Railway backend.
-  if (process.env.NODE_ENV === 'production') {
-    // If someone accidentally sets an absolute URL in Vercel env vars,
-    // ignore it and force the proxy path.
-    if (!trimmed || /^https?:\/\//i.test(trimmed)) {
-      return '/api';
-    }
-  }
-
   if (!trimmed) {
     return '/api';
   }
