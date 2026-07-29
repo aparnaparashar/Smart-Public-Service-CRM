@@ -4,6 +4,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "node ps-crm-backend/server.js"
+    "startCommand": "node server.js"
   }
 }
